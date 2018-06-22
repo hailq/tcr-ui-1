@@ -15,8 +15,8 @@ export function handleRegisterApplication(applicationName) {
       .send({from: CLIENT_ADDRESS2, gas: BLOCK_GAS_LIMIT}, function(err, result) {
         if (err) console.log('ERR: ', err);
         else {
-          console.log(result);
-          dispatch(registerApplication);
+          dispatch(registerApplication(applicationName));
+          console.log(`Application ${applicationName} success.`);
         }
       });
   }

@@ -5,7 +5,9 @@ export default function applications(state={}, action) {
     case REGISTER_APPLICATION:
       return {
         ...state,
-        [action.applicationName]: action.applicationName
+        [action.applicationName]: {
+          name: action.applicationName,
+        }
       };
     default:
       return state;

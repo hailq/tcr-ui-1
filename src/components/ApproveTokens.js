@@ -3,12 +3,11 @@ import React, { Component } from 'react';
 import {
   tokenInstance,
   registryAddress,
-  CLIENT_ADDRESS1,
   CLIENT_ADDRESS2,
   BLOCK_GAS_LIMIT,
 } from '../web3';
 
-class ApproveTokens extends React.Component {
+class ApproveTokens extends Component {
   state = {
     input: ''
   }
@@ -21,11 +20,12 @@ class ApproveTokens extends React.Component {
 
   handleSubmit = (e) => {
     e.preventDefault();
+    const state = this.state;
     const props = this.props;
 
     // convert input to integer
     // TODO: check if input is a valid number
-    let amount = parseInt(this.state.input)
+    let amount = parseInt(state.input, 10);
 
     // call approve method
     tokenInstance.methods.approve(registryAddress, amount)
@@ -33,7 +33,7 @@ class ApproveTokens extends React.Component {
         if (err) {
           console.log(err);
         } else {
-          console.log('Result: ', result);
+          console.log('Added ' + state.input);
           props.history.push('/register-application')
         }
       })
