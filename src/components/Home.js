@@ -6,7 +6,8 @@ const Home = (props) => {
     <div>
       <h3>TCR App</h3>
       <ul>
-        <li><Link to='/approve-tokens'>Apply</Link></li>
+        <li><Link to='/approve-tokens'>Approve Tokens</Link></li>
+        <li><Link to='/register-application'>Register an application</Link></li>
         <li><Link to='/applications'>See all applications</Link></li>
       </ul>
     </div>

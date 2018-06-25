@@ -1,10 +1,9 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
+import { setUserInfo } from '../actions/account';
 
 import {
-  tokenInstance,
-  registryAddress,
-  CLIENT_ADDRESS2,
-  BLOCK_GAS_LIMIT,
+  approveTokenToRegistry
 } from '../web3';
 
 class ApproveTokens extends Component {
@@ -28,15 +27,11 @@ class ApproveTokens extends Component {
     let amount = parseInt(state.input, 10);
 
     // call approve method
-    tokenInstance.methods.approve(registryAddress, amount)
-      .send({from: CLIENT_ADDRESS2, gas: BLOCK_GAS_LIMIT}, function(err, result) {
-        if (err) {
-          console.log(err);
-        } else {
-          console.log('Added ' + state.input);
-          props.history.push('/register-application')
-        }
-      })
+    approveTokenToRegistry(amount, () => {
+      console.log('Added ' + amount);
+      this.props.dispatch(setUserInfo());
+      props.history.push('/')
+    })
   }
 
   render() {
@@ -58,4 +53,4 @@ class ApproveTokens extends Component {
   }
 }
 
-export default ApproveTokens;
+export default connect(null)(ApproveTokens);

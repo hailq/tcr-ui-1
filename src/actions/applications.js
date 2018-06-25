@@ -1,24 +1,15 @@
-import {
-  registryInstance,
-  BLOCK_GAS_LIMIT,
-  CLIENT_ADDRESS2,
-  MIN_DEPOSIT
-} from '../web3';
-import ethUtil from 'ethereumjs-util';
+import { applyForListing } from '../web3';
+import { setUserInfo } from './account';
 
 export const REGISTER_APPLICATION = 'REGISTER_APPLICATION';
 
 export function handleRegisterApplication(applicationName) {
   return (dispatch) => {
-    const hashedListingName = '0x' + ethUtil.sha3(applicationName, 256).toString('hex');
-    registryInstance.methods.apply(hashedListingName, MIN_DEPOSIT, applicationName)
-      .send({from: CLIENT_ADDRESS2, gas: BLOCK_GAS_LIMIT}, function(err, result) {
-        if (err) console.log('ERR: ', err);
-        else {
-          dispatch(registerApplication(applicationName));
-          console.log(`Application ${applicationName} success.`);
-        }
-      });
+    applyForListing(applicationName, () => {
+      dispatch(registerApplication(applicationName));
+      dispatch(setUserInfo());
+      console.log(`Application ${applicationName} success.`);
+    })
   }
 }
 

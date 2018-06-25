@@ -1,70 +1,111 @@
 import Web3 from 'web3'
-
+import ethUtil from 'ethereumjs-util';
 
 import * as registryContract from './Registry.json'
 import * as tokenContract from './EIP20.json'
+import * as plcrContract from './PLCRVoting.json';
 
-// const Web3 = require('web3')
-// const fs = require('fs');
-// const ethUtil = require('ethereumjs-util');
+const web3 = new Web3(Web3.givenProvider || "http://localhost:8545");
 
-const contractLocation = './Registry.json';
-const tokenLocation = './EIP20.json';
-const plcrLocation = './PLCRVoting.json';
+const REGISTRY_ADDRESS = '0x1ff158f2016fc24f190de18923c1fb170028c500';
+const TOKEN_ADDRESS = '0x57ac1f946ca078b9defc74d9296d81f3c0386f7e';
+const PLCR_ADDRESS = '0xf0b0e1721d4a08a6bc73928c5ff415dddac4ebd0';
 
-const web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:7545"));
+// an instance of the registry contract
+const registryInstance = new web3.eth.Contract(registryContract.abi, REGISTRY_ADDRESS);
+// an instance of the token contract
+const tokenInstance = new web3.eth.Contract(tokenContract.abi, TOKEN_ADDRESS);
+// an instance of the PLCR contract
+const plcrInstance = new web3.eth.Contract(plcrContract.abi, PLCR_ADDRESS);
 
-export const registryAddress = '0x1ff158f2016fc24f190de18923c1fb170028c500';// registryAddress got from 'Registry.address' in truffle console.
-export const tokenAddress = '0x57ac1f946ca078b9defc74d9296d81f3c0386f7e';
-export const plcrAddress = '0xf0b0e1721d4a08a6bc73928c5ff415dddac4ebd0';
+const MIN_DEPOSIT = 10000000000000000000;
+const BLOCK_GAS_LIMIT = 4500000; //6721975;
+// const acc = asoudfhaisg; 
+/* 
+Export functions
+*/
 
-// Get an instance of the registry contract
-// const registryContract = JSON.parse(registry);
-const registryAbi = registryContract.abi;
-export const registryInstance = new web3.eth.Contract(registryAbi, registryAddress);
+function getAccount(callback) {
+  web3.eth.getAccounts((error, result) => {
+    if (error) {
+      console.log(error)
+    } else {
+      callback(result[0])
+    }})
+}
 
-// Get an instance of the token contract
+// approve tokens
+export function approveTokenToRegistry(amount, callback) {
+  getAccount((acc) => {
+    tokenInstance.methods.approve(REGISTRY_ADDRESS, amount)
+      .send({from: acc, gas: BLOCK_GAS_LIMIT}, function(err, res) {
+        if (err) {
+          console.log(err);
+        } else {
+          callback(acc)
+        }
+      })
+  })
+}
 
-// const tokenContract = JSON.parse(fs.readFileSync(tokenLocation, 'utf8'));
-const tokenAbi = tokenContract.abi;
-export const tokenInstance = new web3.eth.Contract(tokenAbi, tokenAddress);
+// apply for a listing
+export function applyForListing(listingName, callback) {
+  getAccount((acc) => {
+    const hashedListingName = '0x' + ethUtil.sha3(listingName, 256).toString('hex');
+    registryInstance.methods.apply(hashedListingName, MIN_DEPOSIT, listingName)
+      .send({from: acc, gas: BLOCK_GAS_LIMIT}, function(err, res) {
+        if (err) console.log('ERROR', err);
+        else {
+          callback()
+        }
+      });
+  })
+}
 
-// // Get an instance of the PLCR contract
-// const plcrContract = JSON.parse(fs.readFileSync(plcrLocation, 'utf8'));
-// const plcrAbi = plcrContract.abi;
-// const plcrInstance = new web3.eth.Contract(plcrAbi, plcrAddress);
+//////////////////////////////////////////////////////////////////
+//// User Info functions                                  ////////
+//////////////////////////////////////////////////////////////////
+export function getTotalEther(callback) {
+  getAccount((acc) => {
+    web3.eth.getBalance(acc).then(function(result) {
+      const ether = web3.utils.fromWei(result, "ether");
+      callback(ether);
+    })
+  })
+}
 
-// ganache addresses
-export const CLIENT_ADDRESS1 = "0xB6984c37e20C1b9CD4Afe48Cdb2f41DA5b0cEf39";
-export const CLIENT_ADDRESS2 = "0x039A8793760570c0FAF38e219D01a5a43951CD44";
-export const CLIENT_ADDRESS3 = "0x80691958C54a51B97C696bB20517C3e473fc757D";
-export const CLIENT_ADDRESS4 = "0xc228e1f9649506468A33c73EB4fA670C3e79389B";
+export function getTotalToken(callback) {
+  getAccount((acc) => {
+    tokenInstance.methods.balanceOf(acc)
+      .call(function(err, res) {
+        if (err) {
+          console.log(err);
+        } else {
+          callback(res)
+        }
+      })
+  })
+}
 
-export const MIN_DEPOSIT = 10000000000000000000;
-export const BLOCK_GAS_LIMIT = 6721975;
+export function getAllowance(callback) {
+  getAccount((acc) => {
+    tokenInstance.methods.allowance(acc, REGISTRY_ADDRESS)
+      .call(function(err, res) {
+        if (err) {
+          console.log(err);
+        } else {
+          console.log(res)
+          callback(res);
+        }
+      })
+  })
+}
 
-// // give tokens to registry
-// // tokenInstance.methods.approve(registryAddress, 9 * MIN_DEPOSIT)
-// //   .send({from: CLIENT_ADDRESS2, gas: BLOCK_GAS_LIMIT}, function(err, result) {
-// //     if (err) {
-// //       console.log(err);
-// //     } else {
-// //       console.log('Result: ', result);
-// //     }
-// //   })
-
-// // // web3.eth.getBlock("latest").then(function(result) {
-// // //   console.log(result)
-// // // })
-
-// // // apply for a listing
-// // listingName = 'meo01';
-// // hashedListingName = '0x' + ethUtil.sha3(listingName, 256).toString('hex');
-// // registryInstance.methods.apply(hashedListingName, MIN_DEPOSIT, "meomeomeo")
-// //   .send({from: CLIENT_ADDRESS2, gas: BLOCK_GAS_LIMIT}, function(err, result) {
-// //     if (err) console.log('ERR: ', err);
-// //     else console.log(result);
-// //   });
+// registryInstance.methods.apply(hashedListingName, MIN_DEPOSIT, "meomeomeo")
+//   .send({from: CLIENT_ADDRESS2, gas: BLOCK_GAS_LIMIT}, function(err, result) {
+//     if (err) console.log('ERR: ', err);
+//     else console.log(result);
+//   });
 
 
 
@@ -84,8 +125,8 @@ export const BLOCK_GAS_LIMIT = 6721975;
 // var listHash = '0x' + ethUtil.sha3(appName).toString('hex');
 
 // // // Approve
-// // tokenInstance.methods.approve(registryAddress, 20 * MIN_DEPOSIT).send({from: CLIENT_ADDRESS1});
-// // tokenInstance.methods.approve(registryAddress, 20 * MIN_DEPOSIT).send({from: CLIENT_ADDRESS2});
+// // tokenInstance.methods.approve(REGISTRY_ADDRESS, 20 * MIN_DEPOSIT).send({from: CLIENT_ADDRESS1});
+// // tokenInstance.methods.approve(REGISTRY_ADDRESS, 20 * MIN_DEPOSIT).send({from: CLIENT_ADDRESS2});
 
 // // // Apply
 // // registryInstance.methods.apply(listHash, MIN_DEPOSIT, "test02").send({from: CLIENT_ADDRESS1, gas: 450000})
