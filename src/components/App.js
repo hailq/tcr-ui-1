@@ -2,11 +2,15 @@ import React, { Component } from 'react';
 import { BrowserRouter as Router, Route } from 'react-router-dom';
 import { connect } from 'react-redux';
 
-import Home from './Home';
-import UserInfo from './UserInfo';
+import Nav from './Nav';
+import Account from './Account';
 import ApproveTokens from './ApproveTokens';
 import RegisterApplication from './RegisterApplication';
 import Applications from './Applications';
+import Remove from './Remove';
+import Listing from './Listing';
+import Challenge from './Challenge';
+import Vote from './Vote';
 
 import { 
   setUserInfo
@@ -23,12 +27,16 @@ class App extends Component {
     return (
       <Router>
         <div>
-          <UserInfo />
+          <Nav />
           <div>
-            <Route exact path='/' component={Home} />
+            <Route exact path='/' component={Applications} />
             <Route path='/approve-tokens' component={ApproveTokens} />
             <Route path='/register-application' component={RegisterApplication} />
-            <Route path='/applications' component={Applications} />
+            <Route path='/account' component={Account} />
+            <Route path='/remove' component={Remove} />
+            <Route exact path='/applications/:id' component={Listing} />
+            <Route path='/applications/:id/challenge' component={Challenge} />
+            <Route path='/applications/:id/vote' component={Vote} />
           </div>
         </div>
       </Router>

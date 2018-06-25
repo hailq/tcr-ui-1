@@ -16,14 +16,13 @@ class ApproveTokens extends Component {
     this.setState({
       [id]: e.target.value
     });
-    console.log(this.state);
   }
 
   handleSubmit = (e) => {
     e.preventDefault();
 
-    const listingName = this.state.username;
-    this.props.dispatch(handleRegisterApplication(listingName))
+    const listing = this.state;
+    this.props.dispatch(handleRegisterApplication(listing))
 
   }
 
@@ -38,6 +37,15 @@ class ApproveTokens extends Component {
               type="text"
               className="form-control"
               id="username"
+              onChange={this.handleChange}  
+            />
+          </div>
+          <div className="form-group">
+            <label htmlFor="registry">Registry: </label>
+            <input
+              type="text"
+              className="form-control"
+              id="registry"
               onChange={this.handleChange}  
             />
           </div>
@@ -72,7 +80,6 @@ class ApproveTokens extends Component {
             <button type="submit" className="btn btn-info">Submit Application</button>
           </div>
         </form>
-        <Link to="/">Back to home page</Link>
       </div>
     );
   }

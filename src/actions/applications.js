@@ -3,19 +3,20 @@ import { setUserInfo } from './account';
 
 export const REGISTER_APPLICATION = 'REGISTER_APPLICATION';
 
-export function handleRegisterApplication(applicationName) {
+export function handleRegisterApplication(listing) {
   return (dispatch) => {
-    applyForListing(applicationName, () => {
-      dispatch(registerApplication(applicationName));
+    applyForListing(listing, () => {
+      dispatch(registerApplication(listing));
       dispatch(setUserInfo());
-      console.log(`Application ${applicationName} success.`);
+      console.log(`Application ${listing.username} success.`);
     })
   }
 }
 
-function registerApplication(applicationName) {
+function registerApplication(listing) {
+  console.log(listing);
   return {
     type: REGISTER_APPLICATION,
-    applicationName
+    listing
   }
 }

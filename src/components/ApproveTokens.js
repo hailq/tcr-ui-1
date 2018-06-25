@@ -39,7 +39,7 @@ class ApproveTokens extends Component {
       <div>
         <h3>Approve your tokens to the registry</h3>
         <form onSubmit={this.handleSubmit}>
-          <label htmlFor="tokenAmount">Enter amount of tokens</label>
+          <label htmlFor="tokenAmount">Enter number of tokens</label>
           <input type="text" id="tokenAmount" onChange={this.handleChange}/>
           <button
             type="submit"

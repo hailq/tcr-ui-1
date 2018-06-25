@@ -49,10 +49,10 @@ export function approveTokenToRegistry(amount, callback) {
 }
 
 // apply for a listing
-export function applyForListing(listingName, callback) {
+export function applyForListing(listing, callback) {
   getAccount((acc) => {
-    const hashedListingName = '0x' + ethUtil.sha3(listingName, 256).toString('hex');
-    registryInstance.methods.apply(hashedListingName, MIN_DEPOSIT, listingName)
+    const hashedListingName = '0x' + ethUtil.sha3(JSON.stringify(listing), 256).toString('hex');
+    registryInstance.methods.apply(hashedListingName, MIN_DEPOSIT, JSON.stringify(listing))
       .send({from: acc, gas: BLOCK_GAS_LIMIT}, function(err, res) {
         if (err) console.log('ERROR', err);
         else {
@@ -94,7 +94,6 @@ export function getAllowance(callback) {
         if (err) {
           console.log(err);
         } else {
-          console.log(res)
           callback(res);
         }
       })

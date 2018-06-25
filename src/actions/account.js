@@ -10,7 +10,6 @@ export const SET_ALLOWANCE = "SET_ALLOWANCE";
 
 export function setUserInfo() {
   return (dispatch) => {
-    console.log('random');
     dispatch(handleSetEther());
     dispatch(handleSetToken());
     dispatch(handleSetAllowance())

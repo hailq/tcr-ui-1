@@ -7,29 +7,36 @@ class Applications extends Component {
     return (
       <div>
         <h3>All Applications</h3>
+
+        <div className="btn-group" role="group">
+          <button type="button" className="btn btn-dark" disabled="disabled">Registry</button>
+          <button type="button" className="btn btn-dark">Applications</button>
+          <button type="button" className="btn btn-dark">Voting</button>
+        </div>
+
         {
         this.props.applications.length > 0
-        ? <ul>
+        ? <ul className="list-group">
             {this.props.applications.map((application) => {
+              const username = application.username;
               return (
-                <li key={application.name}>
-                  {application.name}
+                <li key={username} className="list-group-item">
+                  <Link to={`/applications/${username}`}>{username}</Link>
                 </li>
               )
             })}
         </ul>
         : <div>There are no applications.</div>
         }
-        <Link to="/">Back to home page</Link>
       </div>
     )
   }
 }
 
-function mapStateToProps(state) {
+function mapStateToProps({ applications }) {
   return {
-    applications: Object.keys(state).map((application) => {
-      return state[application]
+    applications: Object.keys(applications).map((application) => {
+      return applications[application];
     })
   }
 }
