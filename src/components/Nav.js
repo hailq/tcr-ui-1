@@ -7,27 +7,27 @@ export default function Nav() {
       <div className="navbar">
         <ul className="nav">
           <li className="nav-item">
-            <NavLink to='/' className="nav-link active">
-              Applications
+            <NavLink to='/' className="nav-link">
+              Listings
             </NavLink>
           </li>
           <li className="nav-item">
-            <NavLink to='/register-application' className="nav-link active">
+            <NavLink to='/apply' className="nav-link active">
               Apply
             </NavLink>
           </li>
           <li className="nav-item">
-            <NavLink to='/approve-tokens' className="nav-link active">
+            <NavLink to='/approve-tokens' className="nav-link">
               Approve Tokens
             </NavLink>
           </li>
           <li className="nav-item">
-            <NavLink to='/account' className="nav-link active">
+            <NavLink to='/account' className="nav-link">
               Account
             </NavLink>
           </li>
           <li className="nav-item">
-            <NavLink to='/remove' className="nav-link active">
+            <NavLink to='/remove' className="nav-link">
               Remove an Application
             </NavLink>
           </li>

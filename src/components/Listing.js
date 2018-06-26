@@ -9,21 +9,20 @@ class Listing extends Component {
 
     if (!listing) return (
       <div>
-        <div className="alert alert-danger">
+        {/* <div className="alert alert-danger">
           <strong>Error!</strong> Listing doesn't exist.
-        </div>
-        <Link to='/'>Go back to home page.</Link>
+        </div> */}
       </div>
     )
 
     return (
       <div>
-        <h3>Listing {id}</h3>
+        <h3>{listing.data}</h3>
         <ul className="list-group">
-          <li className="list-group-item"><label>Registry:</label> {listing.registry}</li>
-          <li className="list-group-item"><label>Credential:</label> {listing.credential}</li>
-          <li className="list-group-item"><label>Deposit:</label> {listing.deposit}</li>
-          <li className="list-group-item"><label>Meta Data: </label> {listing.metadata}</li>
+          <li className="list-group-item"><b>Listing Hash:</b> {listing.listingHash}</li>
+          <li className="list-group-item"><b>Applicant:</b> {listing.applicant}</li>
+          <li className="list-group-item"><b>Deposit:</b> {listing.deposit}</li>
+          <li className="list-group-item"><b>Application End Date: </b> {listing.appEndDate}</li>
         </ul>
         <Link to={`/applications/${id}/vote`}>Vote</Link>
         <br />

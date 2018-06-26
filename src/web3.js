@@ -5,11 +5,19 @@ import * as registryContract from './Registry.json'
 import * as tokenContract from './EIP20.json'
 import * as plcrContract from './PLCRVoting.json';
 
-const web3 = new Web3(Web3.givenProvider || "http://localhost:8545");
+import {
+  _APPLICATION,
+  _APPLICATIONWHITELISTED,
+  _LISTINGREMOVED,
+  _APPLICATIONREMOVED,
+  _LISTINGWITHDRAWN
+} from './events';
 
-const REGISTRY_ADDRESS = '0x1ff158f2016fc24f190de18923c1fb170028c500';
-const TOKEN_ADDRESS = '0x57ac1f946ca078b9defc74d9296d81f3c0386f7e';
-const PLCR_ADDRESS = '0xf0b0e1721d4a08a6bc73928c5ff415dddac4ebd0';
+export const web3 = new Web3(Web3.givenProvider || "http://localhost:8545");
+
+const REGISTRY_ADDRESS = '0x4531b83068d615498f065b14f1cf9edcc2d1333b';
+const TOKEN_ADDRESS = '0x0b65063c6857f869c3933578a9112fb55572151f';
+const PLCR_ADDRESS = '0x7950062930162de86b195ca6da90d87d1f3f9080';
 
 // an instance of the registry contract
 const registryInstance = new web3.eth.Contract(registryContract.abi, REGISTRY_ADDRESS);
@@ -20,7 +28,7 @@ const plcrInstance = new web3.eth.Contract(plcrContract.abi, PLCR_ADDRESS);
 
 const MIN_DEPOSIT = 10000000000000000000;
 const BLOCK_GAS_LIMIT = 4500000; //6721975;
-// const acc = asoudfhaisg; 
+
 /* 
 Export functions
 */
@@ -50,15 +58,57 @@ export function approveTokenToRegistry(amount, callback) {
 
 // apply for a listing
 export function applyForListing(listing, callback) {
+  console.log(listing);
   getAccount((acc) => {
     const hashedListingName = '0x' + ethUtil.sha3(JSON.stringify(listing), 256).toString('hex');
-    registryInstance.methods.apply(hashedListingName, MIN_DEPOSIT, JSON.stringify(listing))
+    registryInstance.methods.apply(hashedListingName, MIN_DEPOSIT, listing.listingName)
       .send({from: acc, gas: BLOCK_GAS_LIMIT}, function(err, res) {
         if (err) console.log('ERROR', err);
         else {
           callback()
         }
       });
+  })
+}
+
+export function getPastEvents(type, callback) {
+  registryInstance.getPastEvents(type, {
+    fromBlock: 1,
+  }, function(error, result) {
+    if (error) {
+      console.log(error);
+    } else {
+      console.log(result)
+      callback(result);
+    }
+  })
+}
+
+export function getWhitelistedApplications() {
+  registryInstance.getPastEvents(_APPLICATIONWHITELISTED, {
+    fromBlock: 1,
+  }, function(error, result) {
+    if (error) {
+      console.log(error);
+    } else {
+      console.log(result);
+    }
+  })
+}
+
+export function getRemovedApplications() {
+  Promise.all([
+    registryInstance.getPastEvents(_APPLICATIONREMOVED, {
+      fromBlock: 1
+    }),
+    registryInstance.getPastEvents(_LISTINGREMOVED, {
+      fromBlock: 1
+    }),
+    registryInstance.getPastEvents(_LISTINGWITHDRAWN, {
+      fromBlock: 1
+    }),
+  ]).then(function(values) {
+    console.log(values);
   })
 }
 
@@ -98,6 +148,20 @@ export function getAllowance(callback) {
         }
       })
   })
+}
+
+// event listeners
+
+export const registryEventListener = (callback) => {
+  registryInstance.events[_APPLICATION](
+    callback = function(error, result) {
+      if (error) {
+        console.log(error);
+      } else {
+        callback(result);
+      }
+    }
+  );
 }
 
 // registryInstance.methods.apply(hashedListingName, MIN_DEPOSIT, "meomeomeo")

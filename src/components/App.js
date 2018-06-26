@@ -5,22 +5,31 @@ import { connect } from 'react-redux';
 import Nav from './Nav';
 import Account from './Account';
 import ApproveTokens from './ApproveTokens';
-import RegisterApplication from './RegisterApplication';
-import Applications from './Applications';
+import Apply from './Apply';
+import Listings from './Listings';
 import Remove from './Remove';
 import Listing from './Listing';
 import Challenge from './Challenge';
 import Vote from './Vote';
 
+import { registryEventListener, getRemovedApplications, getWhitelistedApplications } from '../web3';
+import { _APPLICATION } from '../events';
+
 import { 
   setUserInfo
-} from '../actions/account'
+} from '../actions/account';
+import {
+  handleGetInitialApplications
+} from '../actions/applications'
 
 // TODO: connect with metamask,
 // make nav bar with user info (how many tokens)
 class App extends Component {
   componentDidMount() {
     this.props.dispatch(setUserInfo());
+    // get all applications.
+    this.props.dispatch(handleGetInitialApplications());
+    console.log(this.props);
   }
 
   render() {
@@ -29,9 +38,9 @@ class App extends Component {
         <div>
           <Nav />
           <div>
-            <Route exact path='/' component={Applications} />
+            <Route exact path='/' component={Listings} />
             <Route path='/approve-tokens' component={ApproveTokens} />
-            <Route path='/register-application' component={RegisterApplication} />
+            <Route path='/apply' component={Apply} />
             <Route path='/account' component={Account} />
             <Route path='/remove' component={Remove} />
             <Route exact path='/applications/:id' component={Listing} />
