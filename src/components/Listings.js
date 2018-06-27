@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
-import { getWhitelistedApplications } from '../web3'
+import { challengesResolved } from '../web3'
 
 class Listings extends Component {
   state = {
@@ -11,17 +11,27 @@ class Listings extends Component {
     currentTab: "registry"
   }
 
-  componentDidMount() {
-    // // get all listings currently in registry.
-    // getWhitelistedApplications((apps) => {
-    //   const whitelistedApps = apps.map((app) => {
-    //     return this.props.applications[app];
-    //   })
-    //   this.setState({registry: whitelistedApps});
-    // });
-    // //getRemovedApplications(); // dispatch action to remove application from registry
-    // console.log(this.props);
-    // this.setState({applications: Object.values(this.props.applications)});
+  componentDidUpdate(prevProps) {
+    const registry = [];
+    const applications = [];
+    const voting = [];
+
+    const allApps = this.props.applications;
+    
+    challengesResolved(allApps, (challengeResolvedArray) => {
+      for (let i = 0; i < allApps.length; i++) {
+        if (this.props.applications[i].whitelisted) {
+          registry.push(allApps[i]);
+        } else {
+          if (challengeResolvedArray[i]) applications.push(allApps[i]);
+          else voting.push(allApps[i]);
+        }
+      }
+      if (prevProps !== this.props) {
+        this.setState({ registry, applications, voting });
+      }
+    })
+
   }
 
   handleTabChange = (e) => {
@@ -62,7 +72,7 @@ class Listings extends Component {
         </div>
 
         {
-        this.props.applications.length > 0
+        listings.length > 0
         ? <ul className="list-group">
             {this.props.applications.map((application) => {
               const listingHash = application.listingHash;
@@ -73,7 +83,7 @@ class Listings extends Component {
               )
             })}
         </ul>
-        : <div>There are no applications.</div>
+        : <div>No listings in this categories.</div>
         }
       </div>
     )

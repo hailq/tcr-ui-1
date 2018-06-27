@@ -12,9 +12,6 @@ import Listing from './Listing';
 import Challenge from './Challenge';
 import Vote from './Vote';
 
-import { registryEventListener, getRemovedApplications, getWhitelistedApplications, getPastEvents, getListings } from '../web3';
-import { _APPLICATION } from '../events';
-
 import { 
   setUserInfo
 } from '../actions/account';
@@ -29,8 +26,6 @@ class App extends Component {
     this.props.dispatch(setUserInfo());
     // get all applications.
     this.props.dispatch(handleGetInitialApplications());
-
-    getPastEvents(_APPLICATION, getListings);
   }
 
   render() {

@@ -7,10 +7,10 @@ import * as plcrContract from './PLCRVoting.json';
 
 import {
   _APPLICATION,
-  _APPLICATIONWHITELISTED,
-  _LISTINGREMOVED,
-  _APPLICATIONREMOVED,
-  _LISTINGWITHDRAWN
+  // _APPLICATIONWHITELISTED,
+  // _LISTINGREMOVED,
+  // _APPLICATIONREMOVED,
+  // _LISTINGWITHDRAWN
 } from './events';
 
 export const web3 = new Web3(Web3.givenProvider || "http://localhost:8545");
@@ -64,9 +64,7 @@ export function applyForListing(listing, callback) {
     registryInstance.methods.apply(hashedListingName, MIN_DEPOSIT, listing.listingName)
       .send({from: acc, gas: BLOCK_GAS_LIMIT}, function(err, res) {
         if (err) console.log('ERROR', err);
-        else {
-          callback()
-        }
+        else callback();
       });
   })
 }
@@ -78,37 +76,38 @@ export function getPastEvents(type, callback) {
     if (error) {
       console.log(error);
     } else {
-      console.log(result);
       callback(result);
     }
   })
 }
 
-export function getListings(applications) {
+export function getListings(applications, callback) {
   Promise.all(applications.map(app => (
     registryInstance.methods.listings(app.returnValues.listingHash)
       .call()
   )))
     .then((values) => {
-      console.log(values);
+      callback(values);
     })
     .catch((error) => console.log(error));
 }
 
-export function getRemovedApplications() {
-  Promise.all([
-    registryInstance.getPastEvents(_APPLICATIONREMOVED, {
-      fromBlock: 1
-    }),
-    registryInstance.getPastEvents(_LISTINGREMOVED, {
-      fromBlock: 1
-    }),
-    registryInstance.getPastEvents(_LISTINGWITHDRAWN, {
-      fromBlock: 1
-    }),
-  ]).then(function(values) {
-    console.log(values);
-  })
+export function challengesResolved(applications, callback) {
+  Promise.all(applications.map((app) => registryInstance.methods.challenges(app.challengeID).call()))
+    .then((values) => {
+      callback(values.map((value) => value.resolved));
+    })
+    .catch((error) => {
+      console.log(error);
+    })
+
+  // registryInstance.methods.challenges(challengeID).call()
+  //   .then((challenge) => {
+  //     callback(challenge.resolved);
+  //   })
+  //   .catch((error) => {
+  //     console.log(error);
+  //   })
 }
 
 //////////////////////////////////////////////////////////////////

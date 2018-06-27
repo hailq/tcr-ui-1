@@ -1,4 +1,4 @@
-import { applyForListing, getPastEvents } from '../web3';
+import { applyForListing, getPastEvents, getListings } from '../web3';
 import { setUserInfo } from './account';
 import { _APPLICATION } from '../events';
 
@@ -8,7 +8,7 @@ export const GET_INITIAL_APPLICATIONS = 'GET_INITIAL_APPLICATIONS';
 export function handleRegisterApplication(listing) {
   return (dispatch) => {
     applyForListing(listing, () => {
-      // dispatch(registerApplication(listing));
+      dispatch(registerApplication(listing));
       dispatch(setUserInfo());
       console.log(`Application ${listing.username} success.`);
     })
@@ -17,18 +17,22 @@ export function handleRegisterApplication(listing) {
 
 export function handleGetInitialApplications() {
   return (dispatch) => {
-    getPastEvents(_APPLICATION, (result) => {
-      const apps = {};
-      result.forEach((app) => {
-        apps[app.returnValues.listingHash] = {
-          listingHash: app.returnValues.listingHash,
-          data: app.returnValues.data,
-          appEndDate: app.returnValues.appEndDate,
-          deposit: app.returnValues.deposit,
-          applicant: app.returnValues.applicant
-        };
-      });
-      dispatch(getInitialApplications(apps));
+    getPastEvents(_APPLICATION, (applications) => {
+      getListings(applications, (listings) => {
+        let apps = {};
+
+        for (let i = 0; i < listings.length; i++) {
+          if (listings[i]) {
+            const app = {
+              ...applications[i].returnValues,
+              ...listings[i]
+            };
+            apps[app.listingHash] = app;
+          }
+        }
+
+        dispatch(getInitialApplications(apps));
+      })
     })
   }
 }
