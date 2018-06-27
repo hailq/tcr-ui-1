@@ -15,9 +15,9 @@ import {
 
 export const web3 = new Web3(Web3.givenProvider || "http://localhost:8545");
 
-const REGISTRY_ADDRESS = '0x4531b83068d615498f065b14f1cf9edcc2d1333b';
-const TOKEN_ADDRESS = '0x0b65063c6857f869c3933578a9112fb55572151f';
-const PLCR_ADDRESS = '0x7950062930162de86b195ca6da90d87d1f3f9080';
+const REGISTRY_ADDRESS = '0xd54b47f8e6a1b97f3a84f63c867286272b273b7c';
+const TOKEN_ADDRESS = '0xbaaa2a3237035a2c7fa2a33c76b44a8c6fe18e87';
+const PLCR_ADDRESS = '0xf328c11c4df88d18fcbd30ad38d8b4714f4b33bf';
 
 // an instance of the registry contract
 const registryInstance = new web3.eth.Contract(registryContract.abi, REGISTRY_ADDRESS);
@@ -78,22 +78,21 @@ export function getPastEvents(type, callback) {
     if (error) {
       console.log(error);
     } else {
-      console.log(result)
+      console.log(result);
       callback(result);
     }
   })
 }
 
-export function getWhitelistedApplications() {
-  registryInstance.getPastEvents(_APPLICATIONWHITELISTED, {
-    fromBlock: 1,
-  }, function(error, result) {
-    if (error) {
-      console.log(error);
-    } else {
-      console.log(result);
-    }
-  })
+export function getListings(applications) {
+  Promise.all(applications.map(app => (
+    registryInstance.methods.listings(app.returnValues.listingHash)
+      .call()
+  )))
+    .then((values) => {
+      console.log(values);
+    })
+    .catch((error) => console.log(error));
 }
 
 export function getRemovedApplications() {

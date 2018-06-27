@@ -28,7 +28,6 @@ export function handleGetInitialApplications() {
           applicant: app.returnValues.applicant
         };
       });
-      console.log(apps);
       dispatch(getInitialApplications(apps));
     })
   }

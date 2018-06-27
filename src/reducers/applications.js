@@ -12,7 +12,6 @@ export default function applications(state={}, action) {
       };
     case GET_INITIAL_APPLICATIONS:
       const newState = Object.assign(action.applications, state);
-      console.log(newState);
       return {
         ...newState
       };
