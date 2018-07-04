@@ -10,7 +10,7 @@ export function handleRegisterApplication(listing) {
     applyForListing(listing, () => {
       dispatch(registerApplication(listing));
       dispatch(setUserInfo());
-      console.log(`Application ${listing.username} success.`);
+      console.log(`Application ${listing.listingName} success.`);
     })
   }
 }
@@ -22,7 +22,7 @@ export function handleGetInitialApplications() {
         let apps = {};
 
         for (let i = 0; i < listings.length; i++) {
-          if (listings[i]) {
+          if (listings[i].owner != 0) { // filtered out removed listings
             const app = {
               ...applications[i].returnValues,
               ...listings[i]

@@ -12,12 +12,13 @@ import {
   // _APPLICATIONREMOVED,
   // _LISTINGWITHDRAWN
 } from './events';
+import { createSalt } from './utils';
 
 export const web3 = new Web3(Web3.givenProvider || "http://localhost:8545");
 
-const REGISTRY_ADDRESS = '0xd54b47f8e6a1b97f3a84f63c867286272b273b7c';
-const TOKEN_ADDRESS = '0xbaaa2a3237035a2c7fa2a33c76b44a8c6fe18e87';
-const PLCR_ADDRESS = '0xf328c11c4df88d18fcbd30ad38d8b4714f4b33bf';
+const REGISTRY_ADDRESS = '0xcbdb8dee5990d16f4f05f2c85e89807ab52914db';
+const TOKEN_ADDRESS = '0xbed8c52c53dc6faafb8a600f84e4e0c384032ab3';
+const PLCR_ADDRESS = '0x1e955c41c6e6d84108933f5a1bdef9f96cba3311';
 
 // an instance of the registry contract
 const registryInstance = new web3.eth.Contract(registryContract.abi, REGISTRY_ADDRESS);
@@ -42,15 +43,27 @@ function getAccount(callback) {
     }})
 }
 
-// approve tokens
-export function approveTokenToRegistry(amount, callback) {
+// approve tokens to registry or plcr contract
+export function approveToken(target, amount, callback) {
+  const address = target === "registry" ? REGISTRY_ADDRESS : PLCR_ADDRESS;
   getAccount((acc) => {
-    tokenInstance.methods.approve(REGISTRY_ADDRESS, amount)
+    tokenInstance.methods.approve(address, amount)
       .send({from: acc, gas: BLOCK_GAS_LIMIT}, function(err, res) {
         if (err) {
           console.log(err);
         } else {
-          callback(acc)
+          if (target !== "registry") {
+            plcrInstance.methods.requestVotingRights(amount)
+              .send({from: acc, gas: BLOCK_GAS_LIMIT}, (error, result) => {
+                if (error) {
+                  console.log(error);
+                } else {
+                  callback();
+                }
+              })
+          } else {
+            callback();
+          }
         }
       })
   })
@@ -58,7 +71,6 @@ export function approveTokenToRegistry(amount, callback) {
 
 // apply for a listing
 export function applyForListing(listing, callback) {
-  console.log(listing);
   getAccount((acc) => {
     const hashedListingName = '0x' + ethUtil.sha3(JSON.stringify(listing), 256).toString('hex');
     registryInstance.methods.apply(hashedListingName, MIN_DEPOSIT, listing.listingName)
@@ -66,6 +78,91 @@ export function applyForListing(listing, callback) {
         if (err) console.log('ERROR', err);
         else callback();
       });
+  })
+}
+
+export function challenge(listingHash, data, callback) {
+  getAccount((acc) => {
+    registryInstance.methods.challenge(listingHash, data)
+      .send({from: acc, gas: BLOCK_GAS_LIMIT}, function(err, res) {
+        if (err) console.log('ERROR', err);
+        else callback(res);
+      })
+  })
+}
+
+export function commitVote(listingHash, challengeID, challenge, vote, callback) {
+  // console.log(listingHash, challengeID, challenge, vote);
+
+  getAccount((acc) => {
+    // vote = vote.toString();
+    const salt = createSalt();
+    const secretHash = web3.utils.soliditySha3({type: 'uint', value: vote}, {type: 'uint', value: salt});
+
+    plcrInstance.methods.getInsertPointForNumTokens(
+      acc, MIN_DEPOSIT, challengeID
+    ).call(function(error, prevPollID) {
+      plcrInstance.methods.commitVote(
+        challengeID,
+        secretHash,
+        MIN_DEPOSIT,
+        prevPollID
+      )
+      .send({from: acc, gas: BLOCK_GAS_LIMIT}, function(err, res) {
+        // const voteOption = parseInt(vote, 10);
+        const voteJSON = {
+          voteOption: vote,
+          numTokens: MIN_DEPOSIT,
+          commitEnd: challenge.commitEndDate.toLocaleString(),
+          revealEnd: challenge.revealEndDate.toLocaleString(),
+          listingID: listingHash,
+          salt: salt,
+          pollID: challengeID.toString(),
+          secretHash: secretHash,
+          account: acc
+        }
+        console.log(voteJSON);
+
+        if (err) console.log(err);
+        else callback(voteJSON);
+      })
+    })
+  })
+}
+
+export function revealVote(voteJSON) {
+  // console.log(voteJSON);
+  // console.log(voteJSON.revealEnd - Date.now() / 1000);
+  getAccount((acc) => {
+    plcrInstance.methods.revealVote(
+      voteJSON.pollID,
+      voteJSON.voteOption,
+      voteJSON.salt
+    ).send({from: acc, gas: BLOCK_GAS_LIMIT}, (error, result) => {
+      if (error) {
+        console.log(error);
+      } else {
+        console.log(result);
+      }
+    })
+  })
+}
+
+export function updateStatus(listingHash, callback) {
+  getAccount((acc) => {
+    registryInstance.methods.updateStatus(listingHash)
+      .send({from: acc, gas: BLOCK_GAS_LIMIT}, function(err, res) {
+        if (err) console.log('ERROR', err);
+        else callback(res);
+      })
+  })
+}
+
+export function exit(listingHash) {
+  getAccount((acc) => {
+    registryInstance.methods.exit(listingHash).send(
+      {from: acc, gas: BLOCK_GAS_LIMIT}
+    )
   })
 }
 
@@ -110,6 +207,15 @@ export function challengesResolved(applications, callback) {
   //   })
 }
 
+export function challengeResolved(id, callback) {
+  registryInstance.methods.challenges(id).call()
+    .then((result) => {
+      callback(result.resolved);
+    }).catch((error) => {
+      console.log(error);
+    });
+}
+
 //////////////////////////////////////////////////////////////////
 //// User Info functions                                  ////////
 //////////////////////////////////////////////////////////////////
@@ -128,6 +234,7 @@ export function getTotalToken(callback) {
       .call(function(err, res) {
         if (err) {
           console.log(err);
+          callback(0);
         } else {
           callback(res)
         }
@@ -141,6 +248,7 @@ export function getAllowance(callback) {
       .call(function(err, res) {
         if (err) {
           console.log(err);
+          callback(0);
         } else {
           callback(res);
         }
@@ -187,7 +295,7 @@ export const registryEventListener = (callback) => {
 
 // // // Approve
 // // tokenInstance.methods.approve(REGISTRY_ADDRESS, 20 * MIN_DEPOSIT).send({from: CLIENT_ADDRESS1});
-// // tokenInstance.methods.approve(REGISTRY_ADDRESS, 20 * MIN_DEPOSIT).send({from: CLIENT_ADDRESS2});
+// // tokenInstance.methods.approve(REGISTRY_ADDRESS, 20 * MIN_DEPOSIT).send({from: CLIENT_ADDRESS2}); 
 
 // // // Apply
 // // registryInstance.methods.apply(listHash, MIN_DEPOSIT, "test02").send({from: CLIENT_ADDRESS1, gas: 450000})

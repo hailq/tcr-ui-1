@@ -11,6 +11,7 @@ import Remove from './Remove';
 import Listing from './Listing';
 import Challenge from './Challenge';
 import Vote from './Vote';
+import Reveal from './Reveal';
 
 import { 
   setUserInfo
@@ -18,6 +19,7 @@ import {
 import {
   handleGetInitialApplications
 } from '../actions/applications'
+import { handleGetInitialChallenges } from '../actions/challenges';
 
 // TODO: connect with metamask,
 // make nav bar with user info (how many tokens)
@@ -26,6 +28,8 @@ class App extends Component {
     this.props.dispatch(setUserInfo());
     // get all applications.
     this.props.dispatch(handleGetInitialApplications());
+    // get all challenges
+    this.props.dispatch(handleGetInitialChallenges());
   }
 
   render() {
@@ -42,6 +46,7 @@ class App extends Component {
             <Route exact path='/applications/:id' component={Listing} />
             <Route path='/applications/:id/challenge' component={Challenge} />
             <Route path='/applications/:id/vote' component={Vote} />
+            <Route path='/applications/:id/reveal' component={Reveal} />
           </div>
         </div>
       </Router>

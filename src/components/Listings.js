@@ -11,26 +11,56 @@ class Listings extends Component {
     currentTab: "registry"
   }
 
-  componentDidUpdate(prevProps) {
+  componentDidUpdate(prevProps, prevState) {
     const registry = [];
     const applications = [];
     const voting = [];
 
     const allApps = this.props.applications;
-    
-    challengesResolved(allApps, (challengeResolvedArray) => {
-      for (let i = 0; i < allApps.length; i++) {
-        if (this.props.applications[i].whitelisted) {
-          registry.push(allApps[i]);
+    const allChallenges = this.props.challenges;
+    // map challengeID to the challenges in props. if the revealenddate isn't over, then it's in voting.
+    // if challengeID is 0 then it's an application.
+    // else it's in registry.
+    const currTime = Date.now() / 1000;
+
+    allApps.forEach((app) => {
+      // console.log(app);
+      if (app.challengeID === "0") {
+        applications.push(app);
+      } else {
+        if (parseInt(allChallenges[app.challengeID].revealEndDate, 10) > Date.now() / 1000) {
+          // revealEndDate isn't over so it's being voted.
+          voting.push(app);
         } else {
-          if (challengeResolvedArray[i]) applications.push(allApps[i]);
-          else voting.push(allApps[i]);
+          if (app.whitelisted) {
+            registry.push(app);
+          } else {
+            voting.push(app);
+          }
         }
       }
-      if (prevProps !== this.props) {
-        this.setState({ registry, applications, voting });
-      }
     })
+
+    if (prevProps !== this.props) {
+      this.setState({ registry, applications, voting });
+    }
+    
+    // challengesResolved(allApps, (challengeResolvedArray) => {
+    //   for (let i = 0; i < allApps.length; i++) {
+    //     if (!challengeResolvedArray[i]) {
+    //       voting.push(allApps[i]);
+    //     } else {
+    //       if (this.props.applications[i].whitelisted) {
+    //         registry.push(allApps[i]);
+    //       } else {
+    //         applications.push(allApps[i]);
+    //       }
+    //     }
+    //   }
+    //   if (prevProps !== this.props) {
+    //     this.setState({ registry, applications, voting });
+    //   }
+    // })
 
   }
 
@@ -54,27 +84,27 @@ class Listings extends Component {
             className="btn btn-dark"
             onClick={this.handleTabChange}
             disabled={this.state.currentTab === "registry"}
-          >Registry</button>
+          >Registry ({this.state.registry.length})</button>
           <button
             id="applications"
             type="button"
             className="btn btn-dark"
             onClick={this.handleTabChange}
             disabled={this.state.currentTab === "applications"}
-          >Applications</button>
+          >Applications ({this.state.applications.length})</button>
           <button
             id="voting"
             type="button"
             className="btn btn-dark"
             onClick={this.handleTabChange}
             disabled={this.state.currentTab === "voting"}
-          >Voting</button>
+          >Voting ({this.state.voting.length})</button>
         </div>
 
         {
         listings.length > 0
         ? <ul className="list-group">
-            {this.props.applications.map((application) => {
+            {listings.map((application) => {
               const listingHash = application.listingHash;
               return (
                 <li key={listingHash} className="list-group-item">
@@ -83,18 +113,19 @@ class Listings extends Component {
               )
             })}
         </ul>
-        : <div>No listings in this categories.</div>
+        : <div></div>
         }
       </div>
     )
   }
 }
 
-function mapStateToProps({ applications }) {
+function mapStateToProps({ applications, challenges }) {
   return {
     applications: Object.keys(applications).map((application) => {
       return applications[application];
-    })
+    }),
+    challenges
   }
   // return { applications };
 }
