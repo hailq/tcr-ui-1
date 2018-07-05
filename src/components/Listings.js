@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
-import { challengesResolved } from '../web3'
 
 class Listings extends Component {
   state = {
@@ -11,17 +10,21 @@ class Listings extends Component {
     currentTab: "registry"
   }
 
-  componentDidUpdate(prevProps, prevState) {
+  componentDidMount() {
+    this.updateState();
+  }
+
+  componentDidUpdate(prevProps) {
+    if (prevProps !== this.props) this.updateState();
+  }
+
+  updateState = () => {
     const registry = [];
     const applications = [];
     const voting = [];
 
     const allApps = this.props.applications;
     const allChallenges = this.props.challenges;
-    // map challengeID to the challenges in props. if the revealenddate isn't over, then it's in voting.
-    // if challengeID is 0 then it's an application.
-    // else it's in registry.
-    const currTime = Date.now() / 1000;
 
     allApps.forEach((app) => {
       // console.log(app);
@@ -40,28 +43,8 @@ class Listings extends Component {
         }
       }
     })
-
-    if (prevProps !== this.props) {
-      this.setState({ registry, applications, voting });
-    }
     
-    // challengesResolved(allApps, (challengeResolvedArray) => {
-    //   for (let i = 0; i < allApps.length; i++) {
-    //     if (!challengeResolvedArray[i]) {
-    //       voting.push(allApps[i]);
-    //     } else {
-    //       if (this.props.applications[i].whitelisted) {
-    //         registry.push(allApps[i]);
-    //       } else {
-    //         applications.push(allApps[i]);
-    //       }
-    //     }
-    //   }
-    //   if (prevProps !== this.props) {
-    //     this.setState({ registry, applications, voting });
-    //   }
-    // })
-
+    this.setState({ registry, applications, voting });
   }
 
   handleTabChange = (e) => {
@@ -108,7 +91,7 @@ class Listings extends Component {
               const listingHash = application.listingHash;
               return (
                 <li key={listingHash} className="list-group-item">
-                  <Link to={`/applications/${listingHash}`}>{application.data}</Link>
+                  <Link to={`/applications/${listingHash}`}>{application.data.listingName}</Link>
                 </li>
               )
             })}

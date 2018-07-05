@@ -1,5 +1,8 @@
+import { connect } from 'react-redux';
+
 import React, { Component } from 'react';
 import { challenge } from '../web3';
+import { handleGetAllData } from '../actions';
 
 class Challenge extends Component {
   state = {
@@ -14,7 +17,8 @@ class Challenge extends Component {
     e.preventDefault();
     const listingHash = this.props.match.params.id;
     challenge(listingHash, this.state.reasoning, (result) => {
-      console.log(result);
+      console.log("Challenge success.");
+      this.props.dispatch(handleGetAllData());
     });
   }
 
@@ -37,4 +41,4 @@ class Challenge extends Component {
   }
 }
 
-export default Challenge
+export default connect(null)(Challenge);

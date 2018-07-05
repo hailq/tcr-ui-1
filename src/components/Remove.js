@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import {connect} from 'react-redux';
 
 import { exit } from '../web3';
+import { handleGetInitialApplications } from '../actions/applications';
 
 class Remove extends Component {
   state = {
@@ -16,9 +17,12 @@ class Remove extends Component {
     if (app.length === 0) {
       alert('no listing with that name');
     } else {
-      console.log(app);
       const listingHash = app[0].listingHash;
-      exit(listingHash);
+      exit(listingHash, (result) => {
+        this.props.dispatch(handleGetInitialApplications);
+        console.log("Remove application success.");
+        this.props.history.push('/');
+      });
     }
   }
 

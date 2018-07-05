@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 
 import { updateStatus, challengeResolved } from '../web3';
 import { toMinuteAndSecond } from '../utils';
+import { handleGetInitialApplications } from '../actions/applications';
 
 class Listing extends Component {
   state = {
@@ -63,45 +64,42 @@ class Listing extends Component {
     }
   }
 
-  // updateTimer() {
-  //   const timer = 
-  // }
-
   handleUpdateStatus = () => {
+    this.props.history.push('/')
     updateStatus(this.props.match.params.id, (result) => {
-      console.log(result);
+      console.log('Update status success.');
+      this.props.dispatch(handleGetInitialApplications());
     });
   }
 
   render() {
-    // console.log(Date.now());
-    // console.log(this.state);
     const id = this.props.match.params.id;
     const listing = this.props.applications[id];
 
     if (this.state.appState !== '') {
-      
       return (
         <div>
-          <h3>{listing.data}</h3>
+          <h3>{listing.data.listingName}</h3>
           <ul className="list-group">
             <li className="list-group-item"><b>Listing Hash:</b> {listing.listingHash}</li>
-            <li className="list-group-item"><b>Applicant:</b> {listing.applicant}</li>
-            <li className="list-group-item"><b>Deposit:</b> {listing.deposit}</li>
+            <li className="list-group-item"><b>Credential:</b> {listing.data.credential}</li>
+            <li className="list-group-item"><b>Deposit:</b> {listing.data.deposit}</li>
             <li className="list-group-item"><b>Application End Date: </b> {listing.appEndDate}</li>
           </ul>
+
           {this.state.timeTillCommit > 0 &&
           <h4>Time to commit {toMinuteAndSecond(this.state.timeTillCommit)}</h4>}
           {this.state.timeTillCommit < 0 && this.state.timeTillReveal > 0 &&
           <h4>Time to reveal {toMinuteAndSecond(this.state.timeTillReveal)}</h4>}
-          {this.state.appState === 'vote' && <Link
+          {this.state.timeTillCommit > 0 && this.state.appState === 'vote' &&
+          <Link
             to={`/applications/${id}/vote`}
           >Vote</Link>}
           {this.state.appState === 'challenge' && <Link
             to={`/applications/${id}/challenge`}
           >Challenge</Link>}
-          {this.state.appState === 'reveal' 
-          && <Link
+          {this.state.timeTillCommit < 0 && this.state.timeTillReveal > 0 && this.state.appState === 'reveal' &&
+          <Link
             to={`/applications/${id}/reveal`}
           >Reveal Vote</Link>}
           {this.state.appState === 'updateStatus' && <button

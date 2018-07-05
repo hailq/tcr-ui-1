@@ -13,23 +13,18 @@ import Challenge from './Challenge';
 import Vote from './Vote';
 import Reveal from './Reveal';
 
-import { 
-  setUserInfo
-} from '../actions/account';
-import {
-  handleGetInitialApplications
-} from '../actions/applications'
-import { handleGetInitialChallenges } from '../actions/challenges';
+import { handleGetAllData } from '../actions';
+import { setRegistryEventListener, setPLCREventListener } from '../web3';
 
-// TODO: connect with metamask,
-// make nav bar with user info (how many tokens)
 class App extends Component {
   componentDidMount() {
-    this.props.dispatch(setUserInfo());
-    // get all applications.
-    this.props.dispatch(handleGetInitialApplications());
-    // get all challenges
-    this.props.dispatch(handleGetInitialChallenges());
+    this.props.dispatch(handleGetAllData());
+    setRegistryEventListener("", (result) => {
+      console.log(result);
+    });
+    setPLCREventListener((result) => {
+      console.log(result);
+    });
   }
 
   render() {
