@@ -1,4 +1,155 @@
 import Web3 from 'web3';
+
+import * as registryContract from './Registry.json'
+import * as tokenContract from './EIP20.json'
+import * as plcrContract from './PLCRVoting.json';
+
+import { createSalt } from './utils';
+
+export const web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:7545"));
+
+const REGISTRY_ADDRESS = '0x1ff158f2016fc24f190de18923c1fb170028c500';
+// const EIP20_ADDRESS = '0x57ac1f946ca078b9defc74d9296d81f3c0386f7e';
+// const PLCR_ADDRESS = '0xf0b0e1721d4a08a6bc73928c5ff415dddac4ebd0';
+
+export const registryInstance = web3.eth.contract(registryContract.abi).at(REGISTRY_ADDRESS);
+const tokenInstance = web3.eth.contract(tokenContract.abi).at(registryInstance.token());
+const votingInstance = web3.eth.contract(tokenContract.abi).at(registryInstance.voting());
+
+const acc = web3.eth.accounts[0];
+const MIN_DEPOSIT = 10000000000000000000;
+const BLOCK_GAS_LIMIT = 4500000; //6721975;
+
+/* 
+Contract functions
+*/
+
+export function approve(target, amount, callback) {
+  const address = target === "registry" ? REGISTRY_ADDRESS : registryInstance.voting();
+  tokenInstance.approve(REGISTRY_ADDRESS, MIN_DEPOSIT,
+    {from: acc},
+    (error, result) => {
+      if (error) {
+        console.log(error);
+      } else {
+        if (target !== "registry") {
+          votingInstance.requestVotingRights(amount, 
+            {from: acc, gas: BLOCK_GAS_LIMIT},
+            (error, result) => {
+              if (error) {
+                console.log(error);
+              } else {
+                callback();
+              }
+            })
+        } else {
+          callback();
+        }
+      }
+    }
+  );
+}
+
+export function apply(listing, callback) {
+  const hashedListingName = web3.sha3(listing.listingName);
+  registryInstance.apply(hashedListingName, MIN_DEPOSIT, JSON.stringify(listing), {
+    from: acc, gas: BLOCK_GAS_LIMIT, 
+  }, callback);
+}
+
+export function challenge(listingHash, data, callback) {
+  registryInstance.challenge(listingHash, data, 
+    {from: acc, gas: BLOCK_GAS_LIMIT},
+    callback
+  )
+}
+
+export function commitVote(listingHash, challengeID, challenge, vote, callback) {
+  const salt = createSalt();
+  // const secretHash = web3.utils.soliditySha3({type: 'uint', value: vote}, {type: 'uint', value: salt});
+  const secretHash = web3.sha3()
+
+  let prevPollID = votingInstance.getInsertPointForNumTokens(acc, MIN_DEPOSIT, challengeID)
+
+  votingInstance.commitVote(challengeID, secretHash, MIN_DEPOSIT, prevPollID,
+    {from: acc, gas: BLOCK_GAS_LIMIT},
+    (error, result) => {
+      const voteJSON = {
+        voteOption: vote,
+        numTokens: MIN_DEPOSIT,
+        commitEnd: challenge.commitEndDate.toLocaleString(),
+        revealEnd: challenge.revealEndDate.toLocaleString(),
+        listingID: listingHash,
+        salt: salt,
+        pollID: challengeID.toString(),
+        secretHash: secretHash,
+        account: acc
+      }
+      console.log(voteJSON);
+      callback(error, voteJSON);
+    }
+  )
+}
+
+export function revealVote(voteJSON) {
+  votingInstance.methods.revealVote(voteJSON.pollID, voteJSON.voteOption, voteJSON.salt,
+    {from: acc, gas: BLOCK_GAS_LIMIT}
+  );
+}
+
+export function updateStatus(listingHash, callback) {
+  registryInstance.updateStatus(listingHash,
+    {from: acc, gas: BLOCK_GAS_LIMIT},
+    callback
+  );
+}
+
+export function exit(listingHash, callback) {
+  registryInstance.exit(listingHash,
+    {from: acc, gas: BLOCK_GAS_LIMIT},
+    callback
+  );
+}
+
+export function getPastEvents(type, callback) {
+  const event = registryInstance[type]({}, {fromBlock: 0})
+    .get((error, result) => {
+      if (error) {
+        console.log(error);
+      } else {
+        callback(result);
+      }
+    })
+}
+
+export function getListings(applications, callback) {
+  Promise.all(applications.map(app => (
+    registryInstance.listings(app.returnValues.listingHash)
+  )))
+    .then((values) => {
+      callback(values);
+    })
+    .catch((error) => console.log(error));
+}
+
+//////////////////////////////////////////////////////////////////
+//// User Info functions                                  ////////
+//////////////////////////////////////////////////////////////////
+export function getTotalEther() {
+  return web3.fromWei(web3.eth.getBalance(acc));
+}
+
+export function getTotalToken() {
+  return tokenInstance.balanceOf(acc);
+}
+
+export function getAllowance() {
+  return tokenInstance.allowance(acc, REGISTRY_ADDRESS);
+}
+
+
+
+/* import Web3 from 'web3';
 import ethUtil from 'ethereumjs-util';
 
 import * as registryContract from './Registry.json'
@@ -24,8 +175,7 @@ const MIN_DEPOSIT = 10000000000000000000;
 const BLOCK_GAS_LIMIT = 4500000; //6721975;
 
  
-Export functions
-
+// Export functions
 
 function getAccount(callback) {
   web3.eth.getAccounts((error, result) => {
@@ -271,4 +421,4 @@ export const setPLCREventListener = (event, callback) => {
       callback(result);
     }
   });
-}
+} */
