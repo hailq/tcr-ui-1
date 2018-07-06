@@ -3,10 +3,10 @@ import { connect } from 'react-redux';
 import { setUserInfo } from '../actions/account';
 
 import {
-  approveToken
+  approve
 } from '../web3';
 
-class ApproveTokens extends Component {
+class ApproveToken extends Component {
   state = {
     registry: '',
     plcr: ''
@@ -30,7 +30,7 @@ class ApproveTokens extends Component {
     let amount = parseInt(state[target], 10);
 
     // call approve method
-    approveToken(e.target.name, amount, () => {
+    approve(e.target.name, amount, () => {
       console.log('Added ' + amount);
       this.props.dispatch(setUserInfo());
       props.history.push('/')
@@ -70,4 +70,4 @@ class ApproveTokens extends Component {
   }
 }
 
-export default connect(null)(ApproveTokens);
+export default connect(null)(ApproveToken);

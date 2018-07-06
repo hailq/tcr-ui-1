@@ -11,7 +11,7 @@ class Remove extends Component {
 
   handleSubmit = (e) => {
     const app = this.props.applications.filter((app) => 
-      (app.data === this.state.name)
+      (app.data.listingName === this.state.name)
     )
 
     if (app.length === 0) {

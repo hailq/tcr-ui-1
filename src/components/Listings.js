@@ -27,7 +27,6 @@ class Listings extends Component {
     const allChallenges = this.props.challenges;
 
     allApps.forEach((app) => {
-      // console.log(app);
       if (app.challengeID === "0") {
         applications.push(app);
       } else {

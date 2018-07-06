@@ -8,7 +8,7 @@ export function handleGetInitialChallenges() {
     getPastEvents(_CHALLENGE, (result) => {
       let challenges = {};
       result.forEach((challenge) => {
-        const values = challenge.returnValues;
+        const values = challenge.args;
         challenges[values.challengeID] = {
           challengeID: values.challengeID,
           challenger: values.challenger,

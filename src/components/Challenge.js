@@ -16,9 +16,13 @@ class Challenge extends Component {
   handleSubmit = (e) => {
     e.preventDefault();
     const listingHash = this.props.match.params.id;
-    challenge(listingHash, this.state.reasoning, (result) => {
-      console.log("Challenge success.");
-      this.props.dispatch(handleGetAllData());
+    challenge(listingHash, this.state.reasoning, (error, result) => {
+      if (error) {
+        console.log(error);
+      } else {
+        console.log(result);
+        console.log("Challenge success.");
+      }
     });
   }
 

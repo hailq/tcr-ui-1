@@ -14,17 +14,18 @@ import Vote from './Vote';
 import Reveal from './Reveal';
 
 import { handleGetAllData } from '../actions';
-import { setRegistryEventListener, setPLCREventListener } from '../web3';
+// import { setRegistryEventListener, setPLCREventListener } from '../web3';
 
 class App extends Component {
   componentDidMount() {
+    console.log();
     this.props.dispatch(handleGetAllData());
-    setRegistryEventListener("", (result) => {
-      console.log(result);
-    });
-    setPLCREventListener((result) => {
-      console.log(result);
-    });
+    // setRegistryEventListener("", (result) => {
+    //   console.log(result);
+    // });
+    // setPLCREventListener((result) => {
+    //   console.log(result);
+    // });
   }
 
   render() {

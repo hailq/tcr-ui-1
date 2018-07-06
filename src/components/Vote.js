@@ -16,16 +16,19 @@ class Vote extends Component {
 
   handleSubmit = (e) => {
     e.preventDefault();
-    // get all challenge events that have the listinghash.
-    // the current challenge will be the one with the latest time.
-    // const voteOption = parseInt(this.state.checked, 10);
     
     const listingHash = this.props.match.params.id;
     const challengeID = parseInt(this.props.applications[listingHash].challengeID, 10);
     const challenge = this.props.challenges[challengeID];
 
-    commitVote(listingHash, challengeID, challenge, this.state.checked, (voteJSON) => {
-      this.setState({ voteJSON });
+    commitVote(listingHash, challengeID, challenge, this.state.checked, (error, voteJSON) => {
+      if (error) {
+        console.log(error);
+      } else {
+        console.log("Commit vote success.");
+        console.log(voteJSON);
+        this.setState({voteJSON});
+      }
     })
   }
 
