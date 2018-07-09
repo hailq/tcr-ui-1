@@ -8,6 +8,7 @@ import { handleGetInitialApplications } from '../actions/applications';
 
 class Listing extends Component {
   state = {
+    errorVisibility: false,
     appState: '',
     timeTillCommit: -1,
     timeTillReveal: -1,
@@ -64,9 +65,14 @@ class Listing extends Component {
 
   handleUpdateStatus = () => {
     this.props.history.push('/')
-    updateStatus(this.props.match.params.id, (result) => {
-      console.log('Update status success.');
-      this.props.dispatch(handleGetInitialApplications());
+    updateStatus(this.props.match.params.id, (error, result) => {
+      if (error) {
+        console.log(error);
+        this.setState({errorVisibility: true});
+      } else {
+        console.log('Update status success.');
+        window.location.reload(true);
+      }
     });
   }
 
@@ -104,6 +110,12 @@ class Listing extends Component {
             className="btn btn-info"
             onClick={this.handleUpdateStatus}
           >Update Status</button>}
+          <br />
+          {this.state.errorVisibility &&
+          <div className="alert alert-danger">
+            <strong>Error:</strong> Could not create application. Make sure your account has sufficient ballance and the listing name is not in the registry.
+          </div>
+          }
         </div>
       )
     }

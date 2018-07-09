@@ -1,20 +1,28 @@
 import {
   REGISTER_APPLICATION,
   GET_INITIAL_APPLICATIONS,
+  REMOVE_APPLICATION,
 } from '../actions/applications';
 
 export default function applications(state={}, action) {
+  let newState = {};
   switch (action.type) {
     case REGISTER_APPLICATION:
+      console.log(state);
       return {
         ...state,
-        [action.listing.username]: action.listing
+        [action.application.listingHash]: action.application
       };
     case GET_INITIAL_APPLICATIONS:
-      const newState = Object.assign(action.applications, state);
-      return {
-        ...newState
-      };
+      newState = Object.assign(action.applications, state);
+      return newState;
+    case REMOVE_APPLICATION:
+      Object.keys(state).forEach((listingHash) => {
+        if (listingHash !== action.listingHash) {
+          newState[listingHash] = state[listingHash];
+        }
+      })
+      return newState;
     default:
       return state;
   }

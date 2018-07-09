@@ -1,9 +1,10 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { handleRegisterApplication } from '../actions/applications';
+import { apply } from '../web3';
 
 class Apply extends Component {
   state = {
+    errorVisibility: false,
     listingName: '',
     registry: '',
     credential: '',
@@ -20,10 +21,15 @@ class Apply extends Component {
 
   handleSubmit = (e) => {
     e.preventDefault();
-
     const listing = this.state;
-    this.props.dispatch(handleRegisterApplication(listing))
-
+    apply(listing, (error, result) => {
+      if (error) {
+        console.log(error);
+        this.setState({errorVisibility: true,})
+      } else {
+        console.log(`Application ${listing.listingName} success.`);
+      }
+    })
   }
 
   render() {
@@ -80,6 +86,12 @@ class Apply extends Component {
             <button type="submit" className="btn btn-info">Submit Application</button>
           </div>
         </form>
+        <br />
+        {this.state.errorVisibility &&
+        <div className="alert alert-danger">
+          <strong>Error:</strong> Could not create application. Make sure your account has sufficient ballance and the listing name is not in the registry.
+        </div>
+        }
       </div>
     );
   }

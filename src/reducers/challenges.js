@@ -1,5 +1,6 @@
 import {
-  GET_INITIAL_CHALLENGES
+  GET_INITIAL_CHALLENGES,
+  ADD_CHALLENGE
 } from '../actions/challenges';
 
 export default function challenges(state={}, action) {
@@ -9,6 +10,11 @@ export default function challenges(state={}, action) {
       return {
         ...newState
       };
+    case ADD_CHALLENGE:
+      return {
+        ...state,
+        [action.challenge.challengeID]: action.challenge
+      }
     default:
       return state;
   }

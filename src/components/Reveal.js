@@ -3,6 +3,7 @@ import { revealVote } from '../web3';
 
 class Reveal extends Component {
   state = {
+    errorVisibility: false,
     file: null,
     fileReader: null,
     // fileReader: new FileReader()
@@ -38,6 +39,11 @@ class Reveal extends Component {
           <br />
           <button type="submit" className="btn btn-info">Submit</button>
         </form>
+        {this.state.errorVisibility &&
+        <div className="alert alert-danger">
+          <strong>Error:</strong> Could not commit vote. Make sure the reveal period is still valid.
+        </div>
+        }
       </div>
     )
   }

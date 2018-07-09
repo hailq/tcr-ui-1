@@ -14,18 +14,41 @@ import Vote from './Vote';
 import Reveal from './Reveal';
 
 import { handleGetAllData } from '../actions';
-// import { setRegistryEventListener, setPLCREventListener } from '../web3';
+import { registryInstance } from '../web3';
+import { _APPLICATION, _CHALLENGE, _LISTINGWITHDRAWN } from '../events';
+import { registerApplication, getAllApplicationData, removeApplication } from '../actions/applications';
+import { handleNewChallenge } from '../actions/challenges';
 
 class App extends Component {
   componentDidMount() {
-    console.log();
     this.props.dispatch(handleGetAllData());
-    // setRegistryEventListener("", (result) => {
-    //   console.log(result);
-    // });
-    // setPLCREventListener((result) => {
-    //   console.log(result);
-    // });
+    
+    registryInstance[_APPLICATION]().watch((error, result) => {
+      if (error) {
+        console.log(error);
+      } else {
+        let application = getAllApplicationData(result);
+        this.props.dispatch(registerApplication(application));
+      }
+    })
+
+    registryInstance[_CHALLENGE]().watch((error, result) => {
+      if (error) {
+        console.log(error);
+      } else {
+        const challengedListing = this.props.applications[result.args.listingHash];
+        this.props.dispatch(handleNewChallenge(result, challengedListing));
+      }
+    })
+
+    registryInstance[_LISTINGWITHDRAWN]().watch((error, result) => {
+      const withdrawnListingHash = result.args.listingHash;
+      if (error) {
+        console.log(error);
+      } else {
+        this.props.dispatch(removeApplication(withdrawnListingHash));
+      }
+    })
   }
 
   render() {
@@ -50,8 +73,8 @@ class App extends Component {
   }
 }
 
-function mapStateToProps(state) {
-  return state;
+function mapStateToProps({ applications }) {
+  return { applications };
 }
 
 export default connect(mapStateToProps)(App);

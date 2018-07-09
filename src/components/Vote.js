@@ -4,14 +4,18 @@ import { commitVote } from '../web3';
 
 class Vote extends Component {
   state = {
-    challenge: {},
+    errorVisibility: false,
     checked: '',
-    tokens: 10000000000000000000,
+    tokens: "",
     voteJSON: null
   }
 
   handleClick = (e) => {
     this.setState({ checked: e.target.value });
+  }
+
+  handleChange = (e) => {
+    this.setState({ tokens: e.target.value });
   }
 
   handleSubmit = (e) => {
@@ -20,10 +24,12 @@ class Vote extends Component {
     const listingHash = this.props.match.params.id;
     const challengeID = parseInt(this.props.applications[listingHash].challengeID, 10);
     const challenge = this.props.challenges[challengeID];
+    const tokens = parseInt(this.state.tokens, 10);
 
-    commitVote(listingHash, challengeID, challenge, this.state.checked, (error, voteJSON) => {
+    commitVote(listingHash, challenge, tokens, this.state.checked, (error, voteJSON) => {
       if (error) {
         console.log(error);
+        this.setState({errorVisibility: true});
       } else {
         console.log("Commit vote success.");
         console.log(voteJSON);
@@ -47,25 +53,34 @@ class Vote extends Component {
   }
 
   render() {
-    console.log(this.state.voteJSON);
     const id = this.props.match.params.id;
+    let name = this.props.applications[id] ? this.props.applications[id].data.listingName : "";
 
     return (
       <div>
-        <h4>Vote for {id}</h4>
+        <h4>Vote for {name}</h4>
         <form>
-          <input
-            name="vote"
-            type="radio"
-            value="1"
-            onClick={this.handleClick}
-          /> Approve <br />
-          <input
-            name="vote"
-            type="radio"
-            value="0"
-            onClick={this.handleClick}
-          /> Reject <br />
+          <div className="form-group">
+            <label><strong>Options:</strong></label>
+            <br />
+            <input
+              name="vote"
+              type="radio"
+              value="1"
+              onClick={this.handleClick}
+            /> Approve <br />
+            <input
+              name="vote"
+              type="radio"
+              value="0"
+              onClick={this.handleClick}
+            /> Reject <br />
+          </div>
+          <div className="form-group">
+            <label><strong>Number of tokens:</strong></label>
+            <br />
+            <input type="text" />
+          </div>
           <button
             className="btn btn-info"
             type="submit"
@@ -77,6 +92,11 @@ class Vote extends Component {
         <a href="#" onClick={() => this.download('vote.json', JSON.stringify(this.state.voteJSON))}>
           Download vote JSON.
         </a>
+        }
+        {this.state.errorVisibility &&
+        <div className="alert alert-danger">
+          <strong>Error:</strong> Could not commit vote. Make sure your account has sufficient balance and the voting period is still valid.
+        </div>
         }
       </div>
     );

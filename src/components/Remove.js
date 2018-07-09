@@ -6,6 +6,7 @@ import { handleGetInitialApplications } from '../actions/applications';
 
 class Remove extends Component {
   state = {
+    errorVisibility: false,
     name: ''
   }
 
@@ -15,13 +16,17 @@ class Remove extends Component {
     )
 
     if (app.length === 0) {
-      alert('no listing with that name');
+      this.setState({errorVisibility: true});
     } else {
       const listingHash = app[0].listingHash;
-      exit(listingHash, (result) => {
-        this.props.dispatch(handleGetInitialApplications);
-        console.log("Remove application success.");
-        this.props.history.push('/');
+      exit(listingHash, (error, result) => {
+        if (error) {
+          console.log(error);
+          this.setState({errorVisibility: true});
+        } else {
+          console.log("Remove application success.");
+          this.props.history.push('/');
+        }
       });
     }
   }
@@ -38,7 +43,14 @@ class Remove extends Component {
           <label>Enter listing name:</label>
           <input type="text" onChange={this.handleChange} />
         </div>
-        <button className="btn btn-danger" onClick={this.handleSubmit}>Remove</button>
+        <button className="btn btn-danger" onClick={this.handleSubmit} disabled={this.state.name === ''}
+        >Remove</button>
+        <br />
+        {this.state.errorVisibility &&
+        <div className="alert alert-danger">
+          <strong>Error:</strong> Could not remove application. Make sure you are the owner of the listing and the listing name is correct.
+        </div>
+        }
       </div>
     );
   }

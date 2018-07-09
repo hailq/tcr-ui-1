@@ -1,21 +1,42 @@
-import { apply, getPastEvents, getListings } from '../web3';
+import { apply, getPastEvents, getListings, getListing } from '../web3';
 import { _APPLICATION } from '../events';
 
 export const REGISTER_APPLICATION = 'REGISTER_APPLICATION';
 export const GET_INITIAL_APPLICATIONS = 'GET_INITIAL_APPLICATIONS';
+export const REMOVE_APPLICATION = 'REMOVE_APPLICATION';
 
-export function handleRegisterApplication(listing) {
-  return (dispatch) => {
-    apply(listing, () => {
-      dispatch(handleGetInitialApplications())
-      console.log(`Application ${listing.listingName} success.`);
-    })
-  }
-}
-
+// export function handleRegisterApplication(application) {
+//   return (dispatch) => {
+//     apply(application, () => {
+//       dispatch(handleGetInitialApplications())
+//       console.log(`Application ${application.listingName} success.`);
+//     })
+//   }
+// }
+// TODO: refactor this function to use getAllApplicationData.
 export function handleGetInitialApplications() {
   return (dispatch) => {
     getPastEvents(_APPLICATION, (applications) => {
+      // let apps = {};
+      // applications.forEach((app) => {
+      //   console.log(app);
+      //   const listing = getListing(app);
+      //   if (listing.owner != 0) {
+      //     console.log(app);
+      //     const returnValues = app.args;
+      //     const app = {
+      //       ...returnValues,
+      //       ...listing,
+      //       data: JSON.parse(returnValues.data),
+      //       appEndDate: returnValues.appEndDate.toString(),
+      //       deposit: returnValues.deposit.toString()
+      //     };
+      //     apps[app.listingHash] = app;
+      //   }
+      // })
+
+      // dispatch(getInitialApplications(apps));
+
       getListings(applications, (listings) => {
         let apps = {};
 
@@ -40,16 +61,45 @@ export function handleGetInitialApplications() {
   }
 }
 
-function registerApplication(listing) {
-  return {
-    type: REGISTER_APPLICATION,
-    listing
-  };
-}
-
 function getInitialApplications(applications) {
   return {
     type: GET_INITIAL_APPLICATIONS,
     applications
+  };
+}
+
+export function registerApplication(application) {
+  return {
+    type: REGISTER_APPLICATION,
+    application: application,
+  }
+}
+
+export function removeApplication(listingHash) {
+  return {
+    type: REMOVE_APPLICATION,
+    listingHash
+  }
+}
+
+// Combine information from the _Application event
+// and the listings mapping into one object.
+export function getAllApplicationData(application) {
+  const listing = getListing(application);
+  const eventReturnedValues = application.args;
+
+  let dataJSON = eventReturnedValues.data;
+  try {
+    dataJSON = JSON.parse(dataJSON)
+  } catch(exception) {
+
+  }
+
+  return {
+    ...eventReturnedValues,
+    ...listing,
+    data: dataJSON,
+    appEndDate: eventReturnedValues.appEndDate.toString(),
+    deposit: eventReturnedValues.deposit.toString()
   };
 }
