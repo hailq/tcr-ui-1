@@ -24,7 +24,9 @@ class Vote extends Component {
     const listingHash = this.props.match.params.id;
     const challengeID = parseInt(this.props.applications[listingHash].challengeID, 10);
     const challenge = this.props.challenges[challengeID];
+    console.log(this.state.tokens);
     const tokens = parseInt(this.state.tokens, 10);
+    console.log(tokens);
 
     commitVote(listingHash, challenge, tokens, this.state.checked, (error, voteJSON) => {
       if (error) {
@@ -59,6 +61,7 @@ class Vote extends Component {
     return (
       <div>
         <h4>Vote for {name}</h4>
+
         <form>
           <div className="form-group">
             <label><strong>Options:</strong></label>
@@ -76,10 +79,11 @@ class Vote extends Component {
               onClick={this.handleClick}
             /> Reject <br />
           </div>
+
           <div className="form-group">
             <label><strong>Number of tokens:</strong></label>
             <br />
-            <input type="text" />
+            <input type="text" id="tokens" onChange={this.handleChange} />
           </div>
           <button
             className="btn btn-info"
@@ -88,6 +92,7 @@ class Vote extends Component {
             disabled={this.state.checked === ''}
           >Submit Vote</button>
         </form>
+
         {this.state.voteJSON &&
         <a href="#" onClick={() => this.download('vote.json', JSON.stringify(this.state.voteJSON))}>
           Download vote JSON.

@@ -21,7 +21,13 @@ class Apply extends Component {
 
   handleSubmit = (e) => {
     e.preventDefault();
-    const listing = this.state;
+    const listing = {
+      listingName: this.state.listingName,
+      registry: this.state.registry,
+      credential: this.state.credential,
+      deposit: this.state.deposit,
+      metadata: this.state.metadata
+    };
     apply(listing, (error, result) => {
       if (error) {
         console.log(error);

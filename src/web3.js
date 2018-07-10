@@ -7,15 +7,36 @@ import * as votingContract from './PLCRVoting.json';
 import { createSalt } from './utils';
 import { soliditySha3 } from 'web3-utils';
 
-export const web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:7545"));
+// export const web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:7545"));
+let web3;
+if (typeof window.web3 !== 'undefined') {
+  web3 = new Web3(window.web3.currentProvider);
+} else {
+  web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:7545"));
+}
 
 const REGISTRY_ADDRESS = '0x1ff158f2016fc24f190de18923c1fb170028c500';
-// const EIP20_ADDRESS = '0x57ac1f946ca078b9defc74d9296d81f3c0386f7e';
-// const PLCR_ADDRESS = '0xf0b0e1721d4a08a6bc73928c5ff415dddac4ebd0';
 
 export const registryInstance = web3.eth.contract(registryContract.abi).at(REGISTRY_ADDRESS);
-const tokenInstance = web3.eth.contract(tokenContract.abi).at(registryInstance.token());
-const votingInstance = web3.eth.contract(votingContract.abi).at(registryInstance.voting());
+const tokenInstance = web3.eth.contract(tokenContract.abi)
+  .at(registryInstance.token())
+  // .call((error, result) => {
+  //   if (error) {
+  //     console.log(error);
+  //   } else {
+  //     console.log(result);
+  //   }
+  // });
+const votingInstance = web3.eth.contract(votingContract.abi)
+  .at(registryInstance.voting())
+  // .call((error, result) => {
+  //   if (error) {
+  //     console.log(error);
+  //   } else {
+  //     console.log(result);
+  //   }
+  // });
+
 
 const acc = web3.eth.accounts[0];
 const MIN_DEPOSIT = 10000000000000000000;
@@ -27,14 +48,13 @@ Contract functions
 
 export function approve(target, amount, callback) {
   const address = target === "registry" ? REGISTRY_ADDRESS : registryInstance.voting();
-  console.log(address);
   tokenInstance.approve(address, amount,
     {from: acc},
     (error, result) => {
       if (error) {
         console.log(error);
       } else {
-        if (target !== "registry") {
+        if (target === 'plcr') {
           votingInstance.requestVotingRights(amount, 
             {from: acc, gas: BLOCK_GAS_LIMIT},
             (error, result) => {
@@ -53,46 +73,52 @@ export function approve(target, amount, callback) {
 }
 
 export function apply(listing, callback) {
-  const hashedListingName = web3.sha3(listing.listingName);
-  registryInstance.apply(hashedListingName, MIN_DEPOSIT, JSON.stringify(listing), {
-    from: acc, gas: BLOCK_GAS_LIMIT, 
-  }, callback);
+  approve('registry', MIN_DEPOSIT, () => {
+    const hashedListingName = web3.sha3(listing.listingName);
+    registryInstance.apply(hashedListingName, MIN_DEPOSIT, JSON.stringify(listing), {
+      from: acc, gas: BLOCK_GAS_LIMIT, 
+    }, callback);
+  })
 }
 
 export function challenge(listingHash, data, callback) {
-  registryInstance.challenge(listingHash, data, 
-    {from: acc, gas: BLOCK_GAS_LIMIT},
-    callback
-  )
+  approve('registry', MIN_DEPOSIT, () => {
+    registryInstance.challenge(listingHash, data, 
+      {from: acc, gas: BLOCK_GAS_LIMIT},
+      callback
+    )
+  })
 }
 
 export function commitVote(listingHash, challenge, tokens, vote, callback) {
-  const salt = createSalt();
-  const secretHash = soliditySha3({type: 'uint', value: vote}, {type: 'uint', value: salt});
-  console.log(vote, salt, secretHash);
+  console.log(tokens);
+  approve('plcr', tokens, () => {
+    console.log('here');
+    const salt = createSalt();
+    const secretHash = soliditySha3({type: 'uint', value: vote}, {type: 'uint', value: salt});
 
-  let prevPollID = votingInstance.getInsertPointForNumTokens(acc, tokens, challenge.challengeID)
+    let prevPollID = votingInstance.getInsertPointForNumTokens(acc, tokens, challenge.challengeID)
 
-  votingInstance.commitVote(challenge.challengeID, secretHash, tokens, prevPollID,
-    {from: acc, gas: BLOCK_GAS_LIMIT},
-    (error, result) => {
-      callback(error, {
-        voteOption: vote,
-        numTokens: MIN_DEPOSIT,
-        commitEnd: challenge.commitEndDate.toLocaleString(),
-        revealEnd: challenge.revealEndDate.toLocaleString(),
-        listingID: listingHash,
-        salt: salt,
-        pollID: challenge.challengeID.toString(),
-        secretHash: secretHash,
-        account: acc
-      });
-    }
-  )
+    votingInstance.commitVote(challenge.challengeID, secretHash, tokens, prevPollID,
+      {from: acc, gas: BLOCK_GAS_LIMIT},
+      (error, result) => {
+        callback(error, {
+          voteOption: vote,
+          numTokens: tokens,
+          commitEnd: challenge.commitEndDate.toLocaleString(),
+          revealEnd: challenge.revealEndDate.toLocaleString(),
+          listingID: listingHash,
+          salt: salt,
+          pollID: challenge.challengeID.toString(),
+          secretHash: secretHash,
+          account: acc
+        });
+      }
+    )
+  })
 }
 
 export function revealVote(voteJSON) {
-  console.log(voteJSON);
   votingInstance.revealVote(voteJSON.pollID, voteJSON.voteOption, voteJSON.salt,
     {from: acc, gas: BLOCK_GAS_LIMIT},
     (error, result) => {
@@ -120,7 +146,7 @@ export function exit(listingHash, callback) {
 }
 
 export function getPastEvents(type, callback) {
-  const event = registryInstance[type]({}, {fromBlock: 0})
+  registryInstance[type]({}, {fromBlock: 0})
     .get((error, result) => {
       if (error) {
         console.log(error);

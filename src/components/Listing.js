@@ -15,12 +15,32 @@ class Listing extends Component {
   }
 
   componentDidMount() {
+    // Update the state every 1 second to show the countdown effect.
     this.interval = setInterval(() => {
-      this.setState((prevState) => ({
-        timeTillCommit: prevState.timeTillCommit - 1,
-        timeTillReveal: prevState.timeTillReveal - 1,
-      }))
+      this.setState((prevState) => {
+        let timeTillCommit = prevState.timeTillCommit - 1;
+        let timeTillReveal = prevState.timeTillReveal - 1;
+        let appState = '';
+        if (prevState.appState === 'challenge') {
+          appState = prevState.appState;
+        } else {
+          if (timeTillCommit > 0) {
+            appState = 'vote';
+          } else if (timeTillReveal > 0) {
+            appState = 'reveal';
+          } else {
+            appState = 'updateStatus';
+          }
+        }
+
+        return {
+          timeTillCommit,
+          timeTillReveal,
+          appState
+        }
+      })
     }, 1000);
+    
     this.updateState();
   }
 
@@ -64,13 +84,13 @@ class Listing extends Component {
   }
 
   handleUpdateStatus = () => {
-    this.props.history.push('/')
     updateStatus(this.props.match.params.id, (error, result) => {
       if (error) {
         console.log(error);
         this.setState({errorVisibility: true});
       } else {
         console.log('Update status success.');
+        this.props.history.push('/')
         window.location.reload(true);
       }
     });
@@ -84,6 +104,7 @@ class Listing extends Component {
       return (
         <div>
           <h3>{listing.data.listingName}</h3>
+
           <ul className="list-group">
             <li className="list-group-item"><b>Listing Hash:</b> {listing.listingHash}</li>
             <li className="list-group-item"><b>Credential:</b> {listing.data.credential}</li>
@@ -91,25 +112,35 @@ class Listing extends Component {
             <li className="list-group-item"><b>Application End Date: </b> {listing.appEndDate}</li>
           </ul>
 
+          {/* Countdown clock */}
           {this.state.timeTillCommit > 0 &&
-          <h4>Time to commit {toMinuteAndSecond(this.state.timeTillCommit)}</h4>}
+          <h4>Time to commit vote {toMinuteAndSecond(this.state.timeTillCommit)}</h4>}
           {this.state.timeTillCommit < 0 && this.state.timeTillReveal > 0 &&
-          <h4>Time to reveal {toMinuteAndSecond(this.state.timeTillReveal)}</h4>}
-          {this.state.timeTillCommit > 0 && this.state.appState === 'vote' &&
+          <h4>Time to reveal vote {toMinuteAndSecond(this.state.timeTillReveal)}</h4>}
+
+          {this.state.appState === 'vote' &&
           <Link
             to={`/applications/${id}/vote`}
-          >Vote</Link>}
+          >Vote</Link>
+          }
+
           {this.state.appState === 'challenge' && <Link
             to={`/applications/${id}/challenge`}
-          >Challenge</Link>}
-          {this.state.timeTillCommit < 0 && this.state.timeTillReveal > 0 && this.state.appState === 'reveal' &&
+          >Challenge</Link>
+          }
+
+          {this.state.appState === 'reveal' &&
           <Link
             to={`/applications/${id}/reveal`}
-          >Reveal Vote</Link>}
+          >Reveal Vote</Link>
+          }
+
           {this.state.appState === 'updateStatus' && <button
             className="btn btn-info"
             onClick={this.handleUpdateStatus}
-          >Update Status</button>}
+          >Update Status</button>
+          }
+
           <br />
           {this.state.errorVisibility &&
           <div className="alert alert-danger">
