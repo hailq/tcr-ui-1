@@ -7,13 +7,13 @@ import * as votingContract from './PLCRVoting.json';
 import { createSalt } from './utils';
 import { soliditySha3 } from 'web3-utils';
 
-// export const web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:7545"));
-let web3;
-if (typeof window.web3 !== 'undefined') {
-  web3 = new Web3(window.web3.currentProvider);
-} else {
-  web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:7545"));
-}
+export const web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:7545"));
+// let web3;
+// if (typeof window.web3 !== 'undefined') {
+//   web3 = new Web3(window.web3.currentProvider);
+// } else {
+//   web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:7545"));
+// }
 
 const REGISTRY_ADDRESS = '0x1ff158f2016fc24f190de18923c1fb170028c500';
 

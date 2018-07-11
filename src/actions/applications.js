@@ -36,12 +36,11 @@ export function handleGetInitialApplications() {
       // })
 
       // dispatch(getInitialApplications(apps));
-      console.log(applications);
+
       getListings(applications, (listings) => {
         let apps = {};
 
         for (let i = 0; i < listings.length; i++) {
-          console.log(listings[i])
           if (listings[i].owner != 0) { // only consider listings that are not removed
             const returnValues = applications[i].args
             const app = {
