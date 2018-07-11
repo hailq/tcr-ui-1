@@ -185,7 +185,7 @@ export function getListing(application, callback) {
     if (error) {
       console.log(error);
     } else {
-      callback({
+      callback(application, {
         applicationExpiry: listing[0].toString(),
         whitelisted: listing[1],
         owner: listing[2],
