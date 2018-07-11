@@ -4,7 +4,6 @@ import { connect } from 'react-redux';
 
 import Nav from './Nav';
 import Account from './Account';
-import ApproveTokens from './ApproveTokens';
 import Apply from './Apply';
 import Listings from './Listings';
 import Remove from './Remove';
@@ -14,10 +13,12 @@ import Vote from './Vote';
 import Reveal from './Reveal';
 
 import { handleGetAllData } from '../actions';
-import { registryInstance } from '../web3';
+import { registryInstance, challenge } from '../web3';
 import { _APPLICATION, _CHALLENGE, _LISTINGWITHDRAWN } from '../events';
 import { registerApplication, getAllApplicationData, removeApplication } from '../actions/applications';
 import { handleNewChallenge } from '../actions/challenges';
+
+import '../App.css';
 
 class App extends Component {
   componentDidMount() {
@@ -27,8 +28,9 @@ class App extends Component {
       if (error) {
         console.log(error);
       } else {
-        let application = getAllApplicationData(result);
-        this.props.dispatch(registerApplication(application));
+        getAllApplicationData(result, (application) => {
+          this.props.dispatch(registerApplication(application));
+        });
       }
     })
 
@@ -37,7 +39,8 @@ class App extends Component {
         console.log(error);
       } else {
         const challengedListing = this.props.applications[result.args.listingHash];
-        this.props.dispatch(handleNewChallenge(result, challengedListing));
+        if (challengedListing)
+          this.props.dispatch(handleNewChallenge(result, challengedListing));
       }
     })
 
@@ -53,22 +56,23 @@ class App extends Component {
 
   render() {
     return (
-      <Router>
-        <div>
-          <Nav />
-          <div>
-            <Route exact path='/' component={Listings} />
-            <Route path='/approve-tokens' component={ApproveTokens} />
-            <Route path='/apply' component={Apply} />
-            <Route path='/account' component={Account} />
-            <Route path='/remove' component={Remove} />
-            <Route exact path='/applications/:id' component={Listing} />
-            <Route path='/applications/:id/challenge' component={Challenge} />
-            <Route path='/applications/:id/vote' component={Vote} />
-            <Route path='/applications/:id/reveal' component={Reveal} />
+      <div className="container">
+        <Router>
+          <div className="app">
+            <Nav />
+            <div>
+              <Route exact path='/' component={Listings} />
+              <Route path='/apply' component={Apply} />
+              <Route path='/account' component={Account} />
+              <Route path='/remove' component={Remove} />
+              <Route exact path='/applications/:id' component={Listing} />
+              <Route path='/applications/:id/challenge' component={Challenge} />
+              <Route path='/applications/:id/vote' component={Vote} />
+              <Route path='/applications/:id/reveal' component={Reveal} />
+            </div>
           </div>
-        </div>
-      </Router>
+        </Router>
+      </div>
     );
   }
 }

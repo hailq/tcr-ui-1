@@ -24,9 +24,7 @@ class Vote extends Component {
     const listingHash = this.props.match.params.id;
     const challengeID = parseInt(this.props.applications[listingHash].challengeID, 10);
     const challenge = this.props.challenges[challengeID];
-    console.log(this.state.tokens);
     const tokens = parseInt(this.state.tokens, 10);
-    console.log(tokens);
 
     commitVote(listingHash, challenge, tokens, this.state.checked, (error, voteJSON) => {
       if (error) {

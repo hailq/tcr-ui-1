@@ -8,6 +8,7 @@ export default function applications(state={}, action) {
   let newState = {};
   switch (action.type) {
     case REGISTER_APPLICATION:
+      // console.log(action.application);
       return {
         ...state,
         [action.application.listingHash]: action.application

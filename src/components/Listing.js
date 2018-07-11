@@ -4,7 +4,6 @@ import { Link } from 'react-router-dom';
 
 import { updateStatus, challengeResolved } from '../web3';
 import { toMinuteAndSecond } from '../utils';
-import { handleGetInitialApplications } from '../actions/applications';
 
 class Listing extends Component {
   state = {
@@ -61,25 +60,28 @@ class Listing extends Component {
       let timeTillCommit = 0;
       let timeTillReveal = 0;
 
-      if (listing.challengeID === '0' || challengeResolved(listing.challengeID)) {
-        appState = 'challenge';
-      } else {
-        const challenge = this.props.challenges[listing.challengeID];
-        
-        const currTime = Math.floor(Date.now() / 1000);
-        timeTillCommit = parseInt(challenge.commitEndDate, 10) - currTime;
-        timeTillReveal = parseInt(challenge.revealEndDate, 10) - currTime;
-        
-        if (timeTillCommit > 0) {
-          appState = 'vote';
-        } else if (timeTillReveal > 0) {
-          appState = 'reveal';
+      challengeResolved(listing.challengeID, (resolved) => {
+        if (listing.challengeID === '0' || resolved) {
+          appState = 'challenge';
         } else {
-          appState = 'updateStatus';
+          const challenge = this.props.challenges[listing.challengeID];
+          
+          const currTime = Math.floor(Date.now() / 1000);
+          timeTillCommit = parseInt(challenge.commitEndDate, 10) - currTime;
+          timeTillReveal = parseInt(challenge.revealEndDate, 10) - currTime;
+          
+          if (timeTillCommit > 0) {
+            appState = 'vote';
+          } else if (timeTillReveal > 0) {
+            appState = 'reveal';
+          } else {
+            appState = 'updateStatus';
+          }
         }
-      }
-
-      this.setState({ appState, timeTillCommit, timeTillReveal });
+  
+        this.setState({ appState, timeTillCommit, timeTillReveal });
+      });
+      
     }
   }
 

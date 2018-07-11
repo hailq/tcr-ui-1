@@ -25,11 +25,14 @@ class Listings extends Component {
 
     const allApps = this.props.applications;
     const allChallenges = this.props.challenges;
+    console.log(allApps);
 
     allApps.forEach((app) => {
       if (app.challengeID === "0") {
         applications.push(app);
       } else {
+        // console.log(app);
+        // console.log(allChallenges);
         if (parseInt(allChallenges[app.challengeID].revealEndDate, 10) > Date.now() / 1000) {
           // revealEndDate isn't over so it's being voted.
           voting.push(app);
@@ -87,6 +90,7 @@ class Listings extends Component {
         listings.length > 0
         ? <ul className="list-group">
             {listings.map((application) => {
+              // console.log(application);
               const listingHash = application.listingHash;
               return (
                 <li key={listingHash} className="list-group-item">
