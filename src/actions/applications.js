@@ -17,46 +17,50 @@ export const REMOVE_APPLICATION = 'REMOVE_APPLICATION';
 export function handleGetInitialApplications() {
   return (dispatch) => {
     getPastEvents(_APPLICATION, (applications) => {
-      // let apps = {};
-      // applications.forEach((app) => {
-      //   console.log(app);
-      //   const listing = getListing(app);
-      //   if (listing.owner != 0) {
-      //     console.log(app);
-      //     const returnValues = app.args;
-      //     const app = {
-      //       ...returnValues,
-      //       ...listing,
-      //       data: JSON.parse(returnValues.data),
-      //       appEndDate: returnValues.appEndDate.toString(),
-      //       deposit: returnValues.deposit.toString()
-      //     };
-      //     apps[app.listingHash] = app;
-      //   }
-      // })
-
-      // dispatch(getInitialApplications(apps));
-      console.log(applications);
-      getListings(applications, (listings) => {
-        let apps = {};
-
-        for (let i = 0; i < listings.length; i++) {
-          console.log(listings[i])
-          if (listings[i].owner != 0) { // only consider listings that are not removed
-            const returnValues = applications[i].args
+      let apps = {};
+      applications.forEach((app) => {
+        // console.log(app);
+        getListing(app, (listing) => {
+          console.log(app);
+          if (listing.owner != 0) {
+            console.log(listing);
+            console.log(app);
+            const returnValues = app.args;
             const app = {
               ...returnValues,
-              ...listings[i],
+              ...listing,
               data: JSON.parse(returnValues.data),
               appEndDate: returnValues.appEndDate.toString(),
               deposit: returnValues.deposit.toString()
             };
             apps[app.listingHash] = app;
           }
-        }
-
-        dispatch(getInitialApplications(apps));
+        })
       })
+
+      dispatch(getInitialApplications(apps));
+
+      // console.log(applications);
+      // getListings(applications, (listings) => {
+      //   let apps = {};
+
+      //   for (let i = 0; i < listings.length; i++) {
+      //     console.log(listings[i])
+      //     if (listings[i].owner != 0) { // only consider listings that are not removed
+      //       const returnValues = applications[i].args
+      //       const app = {
+      //         ...returnValues,
+      //         ...listings[i],
+      //         data: JSON.parse(returnValues.data),
+      //         appEndDate: returnValues.appEndDate.toString(),
+      //         deposit: returnValues.deposit.toString()
+      //       };
+      //       apps[app.listingHash] = app;
+      //     }
+      //   }
+
+      //   dispatch(getInitialApplications(apps));
+      // })
     })
   }
 }

@@ -18,25 +18,26 @@ if (typeof window.web3 !== 'undefined') {
 const REGISTRY_ADDRESS = '0x1ff158f2016fc24f190de18923c1fb170028c500';
 
 export const registryInstance = web3.eth.contract(registryContract.abi).at(REGISTRY_ADDRESS);
-const tokenInstance = web3.eth.contract(tokenContract.abi)
-  .at(registryInstance.token())
-  // .call((error, result) => {
-  //   if (error) {
-  //     console.log(error);
-  //   } else {
-  //     console.log(result);
-  //   }
-  // });
-const votingInstance = web3.eth.contract(votingContract.abi)
-  .at(registryInstance.voting())
-  // .call((error, result) => {
-  //   if (error) {
-  //     console.log(error);
-  //   } else {
-  //     console.log(result);
-  //   }
-  // });
 
+const getTokenInstance = (callback) => {
+  registryInstance.token((error, result) => {
+    if (error) {
+      console.log(error);
+    } else {
+      callback(web3.eth.contract(tokenContract.abi).at(result));
+    }
+  });
+}
+
+const getVotingInstance = (callback) => {
+  registryInstance.voting((error, result) => {
+    if (error) {
+      console.log(error);
+    } else {
+      callback(web3.eth.contract(votingContract.abi).at(result));
+    }
+  });
+}
 
 const acc = web3.eth.accounts[0];
 const MIN_DEPOSIT = 10000000000000000000;
@@ -48,28 +49,32 @@ Contract functions
 
 export function approve(target, amount, callback) {
   const address = target === "registry" ? REGISTRY_ADDRESS : registryInstance.voting();
-  tokenInstance.approve(address, amount,
-    {from: acc},
-    (error, result) => {
-      if (error) {
-        console.log(error);
-      } else {
-        if (target === 'plcr') {
-          votingInstance.requestVotingRights(amount, 
-            {from: acc, gas: BLOCK_GAS_LIMIT},
-            (error, result) => {
-              if (error) {
-                console.log(error);
-              } else {
-                callback();
-              }
-            })
+  getTokenInstance((tokenInstance) => {
+    tokenInstance.approve(address, amount,
+      {from: acc},
+      (error, result) => {
+        if (error) {
+          console.log(error);
         } else {
-          callback(result);
+          if (target === 'plcr') {
+            getVotingInstance((votingInstance) => {
+              votingInstance.requestVotingRights(amount, 
+                {from: acc, gas: BLOCK_GAS_LIMIT},
+                (error, result) => {
+                  if (error) {
+                    console.log(error);
+                  } else {
+                    callback();
+                  }
+                })
+            })
+          } else {
+            callback(result);
+          }
         }
       }
-    }
-  );
+    );
+  })
 }
 
 export function apply(listing, callback) {
@@ -91,44 +96,47 @@ export function challenge(listingHash, data, callback) {
 }
 
 export function commitVote(listingHash, challenge, tokens, vote, callback) {
-  console.log(tokens);
-  approve('plcr', tokens, () => {
-    console.log('here');
-    const salt = createSalt();
-    const secretHash = soliditySha3({type: 'uint', value: vote}, {type: 'uint', value: salt});
-
-    let prevPollID = votingInstance.getInsertPointForNumTokens(acc, tokens, challenge.challengeID)
-
-    votingInstance.commitVote(challenge.challengeID, secretHash, tokens, prevPollID,
-      {from: acc, gas: BLOCK_GAS_LIMIT},
-      (error, result) => {
-        callback(error, {
-          voteOption: vote,
-          numTokens: tokens,
-          commitEnd: challenge.commitEndDate.toLocaleString(),
-          revealEnd: challenge.revealEndDate.toLocaleString(),
-          listingID: listingHash,
-          salt: salt,
-          pollID: challenge.challengeID.toString(),
-          secretHash: secretHash,
-          account: acc
-        });
-      }
-    )
+  getVotingInstance((votingInstance) => {
+    approve('plcr', tokens, () => {
+      console.log('here');
+      const salt = createSalt();
+      const secretHash = soliditySha3({type: 'uint', value: vote}, {type: 'uint', value: salt});
+  
+      let prevPollID = votingInstance.getInsertPointForNumTokens(acc, tokens, challenge.challengeID)
+  
+      votingInstance.commitVote(challenge.challengeID, secretHash, tokens, prevPollID,
+        {from: acc, gas: BLOCK_GAS_LIMIT},
+        (error, result) => {
+          callback(error, {
+            voteOption: vote,
+            numTokens: tokens,
+            commitEnd: challenge.commitEndDate.toLocaleString(),
+            revealEnd: challenge.revealEndDate.toLocaleString(),
+            listingID: listingHash,
+            salt: salt,
+            pollID: challenge.challengeID.toString(),
+            secretHash: secretHash,
+            account: acc
+          });
+        }
+      )
+    })
   })
 }
 
 export function revealVote(voteJSON) {
-  votingInstance.revealVote(voteJSON.pollID, voteJSON.voteOption, voteJSON.salt,
-    {from: acc, gas: BLOCK_GAS_LIMIT},
-    (error, result) => {
-      if (error) {
-        console.log(error);
-      } else {
-        console.log(result);
+  getVotingInstance((votingInstance) => {
+    votingInstance.revealVote(voteJSON.pollID, voteJSON.voteOption, voteJSON.salt,
+      {from: acc, gas: BLOCK_GAS_LIMIT},
+      (error, result) => {
+        if (error) {
+          console.log(error);
+        } else {
+          console.log(result);
+        }
       }
-    }
-  );
+    );
+  })
 }
 
 export function updateStatus(listingHash, callback) {
@@ -157,31 +165,35 @@ export function getPastEvents(type, callback) {
 }
 
 export function getListings(applications, callback) {
-  Promise.all(applications.map(app => {
-    const listing = registryInstance.listings(app.args.listingHash)
-    return {
-      applicationExpiry: listing[0].toString(),
-      whitelisted: listing[1],
-      owner: listing[2],
-      unstakedDeposit: listing[3].toString(),
-      challengeID: listing[4].toString()
-    }
-  }))
-    .then((values) => {
-      callback(values);
+  Promise.all(applications.map(app => registryInstance.listings(app.args.listingHash)))
+    .then((listings) => {
+      const results = listings.map((listing) => ({
+        applicationExpiry: listing[0].toString(),
+        whitelisted: listing[1],
+        owner: listing[2],
+        unstakedDeposit: listing[3].toString(),
+        challengeID: listing[4].toString()
+      }))
+
+      callback(results);
     })
     .catch((error) => console.log(error));
 }
 
-export function getListing(application) {
-  const listing = registryInstance.listings(application.args.listingHash)
-  return {
-    applicationExpiry: listing[0].toString(),
-    whitelisted: listing[1],
-    owner: listing[2],
-    unstakedDeposit: listing[3].toString(),
-    challengeID: listing[4].toString()
-  }
+export function getListing(application, callback) {
+  registryInstance.listings(application.args.listingHash, (error, listing) => {
+    if (error) {
+      console.log(error);
+    } else {
+      callback({
+        applicationExpiry: listing[0].toString(),
+        whitelisted: listing[1],
+        owner: listing[2],
+        unstakedDeposit: listing[3].toString(),
+        challengeID: listing[4].toString()
+      })
+    }
+  });
 }
 
 export function challengeResolved(id, callback) {
@@ -191,16 +203,38 @@ export function challengeResolved(id, callback) {
 //////////////////////////////////////////////////////////////////
 //// User Info functions                                  ////////
 //////////////////////////////////////////////////////////////////
-export function getTotalEther() {
-  return web3.fromWei(web3.eth.getBalance(acc));
+export function getTotalEther(callback) {
+  web3.eth.getBalance(acc, (error, result) => {
+    if (error) {
+      console.log(error);
+    } else {
+      callback(web3.fromWei(result))
+    }
+  })
 }
 
-export function getTotalToken() {
-  return tokenInstance.balanceOf(acc);
+export function getTotalToken(callback) {
+  getTokenInstance((tokenInstance) => {
+    tokenInstance.balanceOf(acc, (error, totalToken) => {
+      if (error) {
+        console.log(error);
+      } else {
+        callback(totalToken)
+      }
+    })
+  })
 }
 
-export function getAllowance() {
-  return tokenInstance.allowance(acc, REGISTRY_ADDRESS);
+export function getAllowance(callback) {
+  getTokenInstance((tokenInstance) => {
+    tokenInstance.allowance(acc, REGISTRY_ADDRESS, (error, allowance) => {
+      if (error) {
+        console.log(error);
+      } else {
+        callback(allowance);
+      }
+    })
+  })
 }
 
 /* 

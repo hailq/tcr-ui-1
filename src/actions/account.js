@@ -10,29 +10,53 @@ export const SET_ALLOWANCE = "SET_ALLOWANCE";
 
 export function setUserInfo() {
   return (dispatch) => {
-    dispatch(setEther());
-    dispatch(setToken());
-    dispatch(setAllowance())
+    dispatch(handleSetEther());
+    dispatch(handleSetToken());
+    dispatch(handleSetAllowance())
+  }
+}
+
+function handleSetEther() {
+  return (dispatch) => {
+    getTotalEther((ether) => {
+      dispatch(setEther(ether));
+    })
+  }
+}
+
+function handleSetToken() {
+  return (dispatch) => {
+    getTotalToken((token) => {
+      dispatch(setToken(token));
+    })
+  }
+}
+
+function handleSetAllowance() {
+  return (dispatch) => {
+    getAllowance((allowance) => {
+      dispatch(setAllowance(allowance));
+    })
   }
 }
 
 function setEther(ether) {
   return {
     type: SET_ETHER,
-    ether: getTotalEther().toString()
+    ether
   }
 }
 
 function setToken(token) {
   return {
     type: SET_TOKEN,
-    token: getTotalToken().toString()
+    token
   }
 }
 
 function setAllowance(allowance) {
   return {
     type: SET_ALLOWANCE,
-    allowance: getAllowance().toString()
+    allowance
   }
 }
