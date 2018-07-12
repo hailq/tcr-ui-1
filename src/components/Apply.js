@@ -41,7 +41,10 @@ class Apply extends Component {
   render() {
     return (
       <div>
-        <h3>Register Listing</h3>
+        <div className="title">
+          <h3>Register Listing</h3>
+        </div>
+
         <form onSubmit={this.handleSubmit}>
           <div className="form-group">
             <label htmlFor="listingName">Listing Name: </label>

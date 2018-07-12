@@ -1,33 +1,13 @@
-import { apply, getPastEvents, getListings, getListing } from '../web3';
+import { getPastEvents, getListing } from '../web3';
 import { _APPLICATION } from '../events';
 
 export const REGISTER_APPLICATION = 'REGISTER_APPLICATION';
 export const GET_INITIAL_APPLICATIONS = 'GET_INITIAL_APPLICATIONS';
 export const REMOVE_APPLICATION = 'REMOVE_APPLICATION';
 
-// TODO: refactor this function to use getAllApplicationData.
 export function handleGetInitialApplications() {
   return (dispatch) => {
     getPastEvents(_APPLICATION, (applications) => {
-      // let apps = {};
-      // applications.forEach((app) => {
-      //   getListing(app, (listing) => {
-      //     if (listing.owner != 0) {
-      //       const returnValues = app.args;
-      //       const application = {
-      //         ...returnValues,
-      //         ...listing,
-      //         data: JSON.parse(returnValues.data),
-      //         appEndDate: returnValues.appEndDate.toString(),
-      //         deposit: returnValues.deposit.toString()
-      //       };
-      //       console.log(application);
-      //       dispatch(registerApplication(application));
-      //       // apps[application.listingHash] = application;
-      //     }
-      //   })
-      // })
-
       applications.forEach((app) => {
         getAllApplicationData(app, (result) => {
           if (result.owner != 0) dispatch(registerApplication(result))

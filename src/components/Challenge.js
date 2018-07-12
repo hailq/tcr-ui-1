@@ -2,7 +2,6 @@ import { connect } from 'react-redux';
 
 import React, { Component } from 'react';
 import { challenge } from '../web3';
-import { handleGetAllData } from '../actions';
 
 class Challenge extends Component {
   state = {

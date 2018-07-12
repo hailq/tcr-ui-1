@@ -3,8 +3,12 @@ import { NavLink } from 'react-router-dom'
 
 export default function Nav() {
   return (
-    <div className="navigation">
-      <div className="navbar">
+    <div className="header bg-dark">
+      <span className="glyphicon glyphicon-road"></span>
+      <span id="registry-name">
+        <strong>Token Curated Registry</strong>
+      </span>
+      <span className="float-right">
         <ul className="nav">
           <li className="nav-item">
             <NavLink to='/' className="nav-link">
@@ -12,7 +16,7 @@ export default function Nav() {
             </NavLink>
           </li>
           <li className="nav-item">
-            <NavLink to='/apply' className="nav-link active">
+            <NavLink to='/apply' className="nav-link">
               Apply
             </NavLink>
           </li>
@@ -27,7 +31,7 @@ export default function Nav() {
             </NavLink>
           </li>
         </ul>
-      </div>
+      </span>
       <div><hr className="my-3" /></div>
     </div>
   )

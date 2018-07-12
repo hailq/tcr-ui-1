@@ -25,7 +25,6 @@ class Listings extends Component {
 
     const allApps = this.props.applications;
     const allChallenges = this.props.challenges;
-    console.log(allApps);
 
     allApps.forEach((app) => {
       if (app.challengeID === "0") {
@@ -60,27 +59,29 @@ class Listings extends Component {
 
     return (
       <div>
-        <h3>All Listings</h3>
+        <div className="title">
+          <h3>All Listings</h3>
+        </div>
 
         <div className="btn-group" role="group">
           <button
             id="registry"
             type="button"
-            className="btn btn-dark"
+            className="btn btn-info tab"
             onClick={this.handleTabChange}
             disabled={this.state.currentTab === "registry"}
           >Registry ({this.state.registry.length})</button>
           <button
             id="applications"
             type="button"
-            className="btn btn-dark"
+            className="btn btn-info tab"
             onClick={this.handleTabChange}
             disabled={this.state.currentTab === "applications"}
           >Applications ({this.state.applications.length})</button>
           <button
             id="voting"
             type="button"
-            className="btn btn-dark"
+            className="btn btn-info tab"
             onClick={this.handleTabChange}
             disabled={this.state.currentTab === "voting"}
           >Voting ({this.state.voting.length})</button>
@@ -90,16 +91,17 @@ class Listings extends Component {
         listings.length > 0
         ? <ul className="list-group">
             {listings.map((application) => {
-              // console.log(application);
               const listingHash = application.listingHash;
               return (
                 <li key={listingHash} className="list-group-item">
-                  <Link to={`/applications/${listingHash}`}>{application.data.listingName}</Link>
+                  <Link to={`/applications/${listingHash}`} className="listing">{application.data.listingName} </Link>
                 </li>
               )
             })}
         </ul>
-        : <div></div>
+        : <div className="no-listings">
+            No listings in this category.
+          </div>
         }
       </div>
     )

@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import {connect} from 'react-redux';
 
 import { exit } from '../web3';
-import { handleGetInitialApplications } from '../actions/applications';
 
 class Remove extends Component {
   state = {
@@ -38,13 +37,24 @@ class Remove extends Component {
   render() {
     return (
       <div>
-        <h4>Remove a listing</h4>
-        <div>
-          <label>Enter listing name:</label>
-          <input type="text" onChange={this.handleChange} />
+        <div className="title">
+          <h3>Remove a Listing</h3>
         </div>
-        <button className="btn btn-danger" onClick={this.handleSubmit} disabled={this.state.name === ''}
-        >Remove</button>
+
+        <form onSubmit={this.handleSubmit}>
+          <div className="form-group">
+            <label htmlFor="listingName">Enter listing Name: </label>
+            <input
+              type="text"
+              className="form-control"
+              onChange={this.handleChange}  
+            />
+          </div>
+
+          <button className="btn btn-danger" disabled={this.state.name === ''}
+          >Remove</button>
+        </form>
+
         <br />
         {this.state.errorVisibility &&
         <div className="alert alert-danger">

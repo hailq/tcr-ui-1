@@ -13,7 +13,7 @@ import Vote from './Vote';
 import Reveal from './Reveal';
 
 import { handleGetAllData } from '../actions';
-import { registryInstance, challenge } from '../web3';
+import { registryInstance } from '../web3';
 import { _APPLICATION, _CHALLENGE, _LISTINGWITHDRAWN } from '../events';
 import { registerApplication, getAllApplicationData, removeApplication } from '../actions/applications';
 import { handleNewChallenge } from '../actions/challenges';
@@ -56,11 +56,11 @@ class App extends Component {
 
   render() {
     return (
-      <div className="container">
+      <div>
         <Router>
           <div className="app">
             <Nav />
-            <div>
+            <div className="content">
               <Route exact path='/' component={Listings} />
               <Route path='/apply' component={Apply} />
               <Route path='/account' component={Account} />

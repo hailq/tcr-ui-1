@@ -114,27 +114,46 @@ class Listing extends Component {
             <li className="list-group-item"><b>Application End Date: </b> {listing.appEndDate}</li>
           </ul>
 
+          <br />
+
           {/* Countdown clock */}
           {this.state.timeTillCommit > 0 &&
-          <h4>Time to commit vote {toMinuteAndSecond(this.state.timeTillCommit)}</h4>}
+          <h4>Time to commit vote: {toMinuteAndSecond(this.state.timeTillCommit)}</h4>}
           {this.state.timeTillCommit < 0 && this.state.timeTillReveal > 0 &&
-          <h4>Time to reveal vote {toMinuteAndSecond(this.state.timeTillReveal)}</h4>}
-
+          <h4>Time to reveal vote: {toMinuteAndSecond(this.state.timeTillReveal)}</h4>}
+          
+          
           {this.state.appState === 'vote' &&
-          <Link
-            to={`/applications/${id}/vote`}
-          >Vote</Link>
+          <button className="btn btn-info">
+            <Link
+              className="button-link"
+              to={`/applications/${id}/vote`}
+            >
+              Vote
+            </Link>
+          </button>
           }
 
-          {this.state.appState === 'challenge' && <Link
-            to={`/applications/${id}/challenge`}
-          >Challenge</Link>
+          {this.state.appState === 'challenge' && 
+          <button className="btn btn-info">
+            <Link
+              className="button-link"
+              to={`/applications/${id}/challenge`}
+            >
+              Challenge
+            </Link>
+          </button>
           }
 
           {this.state.appState === 'reveal' &&
-          <Link
-            to={`/applications/${id}/reveal`}
-          >Reveal Vote</Link>
+          <button className="btn btn-info">
+            <Link
+              className="button-link"
+              to={`/applications/${id}/reveal`}
+            >
+              Reveal Vote
+            </Link>
+          </button>
           }
 
           {this.state.appState === 'updateStatus' && <button

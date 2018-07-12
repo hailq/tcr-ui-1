@@ -7,7 +7,6 @@ import * as votingContract from './PLCRVoting.json';
 import { createSalt } from './utils';
 import { soliditySha3 } from 'web3-utils';
 
-// export const web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:7545"));
 let web3;
 if (typeof window.web3 !== 'undefined') {
   web3 = new Web3(window.web3.currentProvider);
@@ -46,36 +45,6 @@ const BLOCK_GAS_LIMIT = 4500000; //6721975;
 /* 
 Contract functions
 */
-
-// export function approve(target, amount, callback) {
-//   const address = target === "registry" ? REGISTRY_ADDRESS : registryInstance.voting();
-//   getTokenInstance((tokenInstance) => {
-//     tokenInstance.approve(address, amount,
-//       {from: acc},
-//       (error, result) => {
-//         if (error) {
-//           console.log(error);
-//         } else {
-//           if (target === 'plcr') {
-//             getVotingInstance((votingInstance) => {
-//               votingInstance.requestVotingRights(amount, 
-//                 {from: acc, gas: BLOCK_GAS_LIMIT},
-//                 (error, result) => {
-//                   if (error) {
-//                     console.log(error);
-//                   } else {
-//                     callback();
-//                   }
-//                 })
-//             })
-//           } else {
-//             callback(result);
-//           }
-//         }
-//       }
-//     );
-//   })
-// }
 
 function approveTokensToRegistry(amount, callback) {
   const address = REGISTRY_ADDRESS;

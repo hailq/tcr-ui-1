@@ -14,7 +14,7 @@ class Vote extends Component {
     this.setState({ checked: e.target.value });
   }
 
-  handleChange = (e) => {
+  handleChangeTokens = (e) => {
     this.setState({ tokens: e.target.value });
   }
 
@@ -81,7 +81,7 @@ class Vote extends Component {
           <div className="form-group">
             <label><strong>Number of tokens:</strong></label>
             <br />
-            <input type="text" id="tokens" onChange={this.handleChange} />
+            <input type="text" id="tokens" onChange={this.handleChangeTokens} />
           </div>
           <button
             className="btn btn-info"
