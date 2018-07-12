@@ -58,7 +58,7 @@ class Listings extends Component {
     const listings = this.state[this.state.currentTab];
 
     return (
-      <div>
+      <div className="container">
         <div className="title">
           <h3>All Listings</h3>
         </div>

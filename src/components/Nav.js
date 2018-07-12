@@ -8,6 +8,7 @@ export default function Nav() {
       <span id="registry-name">
         <strong>Token Curated Registry</strong>
       </span>
+
       <span className="float-right">
         <ul className="nav">
           <li className="nav-item">
@@ -32,7 +33,6 @@ export default function Nav() {
           </li>
         </ul>
       </span>
-      <div><hr className="my-3" /></div>
     </div>
   )
 }

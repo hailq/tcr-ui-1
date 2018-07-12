@@ -43,7 +43,7 @@ class Remove extends Component {
 
         <form onSubmit={this.handleSubmit}>
           <div className="form-group">
-            <label htmlFor="listingName">Enter listing Name: </label>
+            <label htmlFor="listingName">Enter listing name: </label>
             <input
               type="text"
               className="form-control"
@@ -51,7 +51,7 @@ class Remove extends Component {
             />
           </div>
 
-          <button className="btn btn-danger" disabled={this.state.name === ''}
+          <button className="btn btn-info" disabled={this.state.name === ''}
           >Remove</button>
         </form>
 

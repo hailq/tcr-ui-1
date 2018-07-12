@@ -5,9 +5,13 @@
 } */
 
 .header {
-  padding: 30px 30px 0px 50px;
+  padding: 30px 30px 20px 50px;
   /* padding-left: 30px; */
 }
+
+/* div.header {
+  display:
+} */
 
 #registry-name {
   color: white;
@@ -39,6 +43,7 @@ a:hover.nav-link {
 
 .content {
   padding: 0px 50px;
+  margin-top: 10px;
   font-family: 'Roboto', sans-serif;
 }
 

@@ -1,8 +1,8 @@
 import Web3 from 'web3';
 
-import * as registryContract from './Registry.json'
-import * as tokenContract from './EIP20.json'
-import * as votingContract from './PLCRVoting.json';
+import * as registryContract from './contracts/Registry.json'
+import * as tokenContract from './contracts/EIP20.json'
+import * as votingContract from './contracts/PLCRVoting.json';
 
 import { createSalt } from './utils';
 import { soliditySha3 } from 'web3-utils';
