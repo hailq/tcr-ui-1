@@ -1,11 +1,14 @@
 import React, { Component } from 'react';
 import { apply } from '../web3';
 
+import { FormGroup, Input, Label, Button, Alert, Dropdown, DropdownToggle, DropdownMenu, DropdownItem } from 'reactstrap';
+
 class Apply extends Component {
   state = {
     errorVisibility: false,
+    dropdownOpen: false,
     listingName: '',
-    registry: '',
+    registry: 'Math Experts',
     credential: '',
     deposit: '',
     metadata: ''
@@ -37,6 +40,18 @@ class Apply extends Component {
     })
   }
 
+  toggle = () => {
+    this.setState(prevState => ({
+      dropdownOpen: !prevState.dropdownOpen
+    }));
+  }
+
+  getSelectedDropdownItem = (e) => {
+    this.setState({
+      registry: e.target.value
+    })
+  }
+
   render() {
     return (
       <div>
@@ -45,60 +60,60 @@ class Apply extends Component {
         </div>
 
         <form onSubmit={this.handleSubmit}>
-          <div className="form-group">
-            <label htmlFor="listingName">Listing Name: </label>
-            <input
+          <FormGroup>
+            <Label>Listing Name: </Label>
+            <Input
               type="text"
-              className="form-control"
               id="listingName"
-              onChange={this.handleChange}  
+              onChange={this.handleChange}
             />
-          </div>
-          <div className="form-group">
-            <label htmlFor="registry">Registry: </label>
-            <input
+          </FormGroup>
+          <FormGroup>
+            <Label>Registry: </Label>
+            <Dropdown isOpen={this.state.dropdownOpen} toggle={this.toggle}>
+              <DropdownToggle color="light" caret>
+                {this.state.registry}
+              </DropdownToggle>
+              <DropdownMenu onClick={this.getSelectedDropdownItem}>
+                <DropdownItem value="Math Experts">Math Experts</DropdownItem>
+                <DropdownItem value="Physics Experts">Physics Experts</DropdownItem>
+                <DropdownItem value="Chemistry Experts">Chemistry Experts</DropdownItem>
+              </DropdownMenu>
+            </Dropdown>
+          </FormGroup>
+          
+          <FormGroup>
+            <Label>Credential: </Label>
+            <Input
               type="text"
-              className="form-control"
-              id="registry"
-              onChange={this.handleChange}  
-            />
-          </div>
-          <div className="form-group">
-            <label htmlFor="credential">Credential: </label>
-            <input
-              type="text"
-              className="form-control"
               id="credential"
               onChange={this.handleChange}  
             />
-          </div>
-          <div className="form-group">
-            <label htmlFor="deposit">Deposit (Tokens): </label>
-            <input
+          </FormGroup>
+          <FormGroup>
+            <Label>Deposit: </Label>
+            <Input
               type="text"
-              className="form-control"
               id="deposit"
               onChange={this.handleChange}  
             />
-          </div>
-          <div className="form-group">
-            <label htmlFor="metadata">Metadata: </label>
-            <input
+          </FormGroup>
+          <FormGroup>
+            <Label>Metadata: </Label>
+            <Input
               type="text"
-              className="form-control"
               id="metadata"
               onChange={this.handleChange}  
             />
-          </div>
-          <div>
-            <button type="submit" className="btn btn-info">Submit Application</button>
-          </div>
+          </FormGroup>
+
+          <Button type="submit" color="info">Submit Application</Button>
         </form>
         <br />
         {this.state.errorVisibility &&
-        <div className="alert alert-danger">
+        <Alert color="danger">
           <strong>Error:</strong> Could not create application. Make sure your account has sufficient ballance and the listing name is not in the registry.
-        </div>
+        </Alert>
         }
       </div>
     );

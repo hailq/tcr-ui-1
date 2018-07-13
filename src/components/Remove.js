@@ -3,6 +3,8 @@ import {connect} from 'react-redux';
 
 import { exit } from '../web3';
 
+import { Button, FormGroup, Input, Label, Alert } from 'reactstrap';
+
 class Remove extends Component {
   state = {
     errorVisibility: false,
@@ -10,6 +12,8 @@ class Remove extends Component {
   }
 
   handleSubmit = (e) => {
+    e.preventDefault();
+
     const app = this.props.applications.filter((app) => 
       (app.data.listingName === this.state.name)
     )
@@ -42,24 +46,22 @@ class Remove extends Component {
         </div>
 
         <form onSubmit={this.handleSubmit}>
-          <div className="form-group">
-            <label htmlFor="listingName">Enter listing name: </label>
-            <input
+          <FormGroup>
+            <Label>Enter listing name: </Label>
+            <Input
               type="text"
-              className="form-control"
-              onChange={this.handleChange}  
+              onChange={this.handleChange}
             />
-          </div>
+          </FormGroup>
 
-          <button className="btn btn-info" disabled={this.state.name === ''}
-          >Remove</button>
+          <Button type="submit" color="info" disabled={this.state.name === ''}>Remove</Button>
         </form>
 
         <br />
         {this.state.errorVisibility &&
-        <div className="alert alert-danger">
+        <Alert color="danger">
           <strong>Error:</strong> Could not remove application. Make sure you are the owner of the listing and the listing name is correct.
-        </div>
+        </Alert>
         }
       </div>
     );

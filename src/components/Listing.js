@@ -5,6 +5,8 @@ import { Link } from 'react-router-dom';
 import { updateStatus, challengeResolved } from '../web3';
 import { toMinuteAndSecond } from '../utils';
 
+import { ListGroup, ListGroupItem, Button, Alert } from 'reactstrap';
+
 class Listing extends Component {
   state = {
     errorVisibility: false,
@@ -107,15 +109,17 @@ class Listing extends Component {
 
       return (
         <div>
-          <h3>{listing.data.listingName}</h3>
+          <div className="title">
+            <h3>{listing.data.listingName}</h3>
+          </div>
 
-          <ul className="list-group">
-            <li className="list-group-item"><b>Listing Hash:</b> {listing.listingHash}</li>
-            <li className="list-group-item"><b>Credential:</b> {listing.data.credential}</li>
-            <li className="list-group-item"><b>Deposit:</b> {listing.data.deposit}</li>
-            <li className="list-group-item"><b>Application End Date:</b> {endDate.toLocaleString()}</li>
-            <li className="list-group-item"><b>Metadata:</b> {listing.data.metadata}</li>
-          </ul>
+          <ListGroup>
+            <ListGroupItem><b>Listing Hash:</b> {listing.listingHash}</ListGroupItem>
+            <ListGroupItem><b>Credential:</b> {listing.data.credential}</ListGroupItem>
+            <ListGroupItem><b>Deposit:</b> {listing.data.deposit}</ListGroupItem>
+            <ListGroupItem><b>Application End Date:</b> {endDate.toLocaleString()}</ListGroupItem>
+            <ListGroupItem><b>Metadata:</b> {listing.data.metadata}</ListGroupItem>
+          </ListGroup>
 
           <br />
 
@@ -127,49 +131,49 @@ class Listing extends Component {
           
           
           {this.state.appState === 'vote' &&
-          <button className="btn btn-info">
+          <Button color="info">
             <Link
               className="button-link"
               to={`/applications/${id}/vote`}
             >
               Vote
             </Link>
-          </button>
+          </Button>
           }
 
           {this.state.appState === 'challenge' && 
-          <button className="btn btn-info">
+          <Button color="info">
             <Link
               className="button-link"
               to={`/applications/${id}/challenge`}
             >
               Challenge
             </Link>
-          </button>
+          </Button>
           }
 
           {this.state.appState === 'reveal' &&
-          <button className="btn btn-info">
+          <Button color="info">
             <Link
               className="button-link"
               to={`/applications/${id}/reveal`}
             >
               Reveal Vote
             </Link>
-          </button>
+          </Button>
           }
 
-          {this.state.appState === 'updateStatus' && <button
-            className="btn btn-info"
+          {this.state.appState === 'updateStatus' && <Button
+            color="info"
             onClick={this.handleUpdateStatus}
-          >Update Status</button>
+          >Update Status</Button>
           }
 
           <br />
           {this.state.errorVisibility &&
-          <div className="alert alert-danger">
-            <strong>Error:</strong> Could not create application. Make sure your account has sufficient ballance and the listing name is not in the registry.
-          </div>
+          <Alert color="danger">
+            <strong>Error:</strong> Could not perform the request.
+          </Alert>
           }
         </div>
       )

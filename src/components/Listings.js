@@ -2,6 +2,11 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 
+import App from './App';
+// import ListingTable from './Listings';
+
+import { Button, Collapse } from 'reactstrap';
+
 class Listings extends Component {
   state = {
     registry: [],
@@ -58,11 +63,26 @@ class Listings extends Component {
     const listings = this.state[this.state.currentTab];
 
     return (
-      <div className="container">
+      <div>
         <div className="title">
           <h3>All Listings</h3>
         </div>
 
+        <Button className="tab" color="info" size="sm" block caret>Registry ({this.state.registry.length})</Button>
+        <Collapse isOpen={this.state.currentTab === 'registry'}>
+          {/* <ListingTable listings={this.state.registry} /> */}
+        </Collapse>
+        <Button className="tab" color="info" size="sm" block>Applications ({this.state.applications.length})</Button>
+        <Collapse isOpen={this.state.currentTab === 'applications'}>
+          {/* <ListingTable listings={this.state.applications} /> */}
+        </Collapse>
+        <Button className="tab" color="info" size="sm" block>Voting ({this.state.voting.length})</Button>
+        <Collapse isOpen={this.state.currentTab === 'voting'}>
+          {/* <ListingTable listings={this.state.voting} /> */}
+        </Collapse>
+
+
+        <br />
         <div className="btn-group" role="group">
           <button
             id="registry"
