@@ -103,6 +103,8 @@ class Listing extends Component {
     const listing = this.props.applications[id];
 
     if (this.state.appState !== '') {
+      const endDate = new Date(parseInt(listing.appEndDate) * 1000); // sec to millisec
+
       return (
         <div>
           <h3>{listing.data.listingName}</h3>
@@ -111,7 +113,8 @@ class Listing extends Component {
             <li className="list-group-item"><b>Listing Hash:</b> {listing.listingHash}</li>
             <li className="list-group-item"><b>Credential:</b> {listing.data.credential}</li>
             <li className="list-group-item"><b>Deposit:</b> {listing.data.deposit}</li>
-            <li className="list-group-item"><b>Application End Date: </b> {listing.appEndDate}</li>
+            <li className="list-group-item"><b>Application End Date:</b> {endDate.toLocaleString()}</li>
+            <li className="list-group-item"><b>Metadata:</b> {listing.data.metadata}</li>
           </ul>
 
           <br />

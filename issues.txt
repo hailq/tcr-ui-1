@@ -4,3 +4,4 @@
 - "TypeError: Cannot read property 'data' of undefined"
 To reproduce: challenge a listing, then go back to that listing page, then refresh page.
 - The navbar disappears when scale back horizontally.
+- 

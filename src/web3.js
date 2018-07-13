@@ -14,15 +14,27 @@ if (typeof window.web3 !== 'undefined') {
   web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:7545"));
 }
 
-const REGISTRY_ADDRESS = '0x1ff158f2016fc24f190de18923c1fb170028c500';
+const REGISTRY_ADDRESS = '0xbececb27f6da8475ab50bac2c66a5fdcee8ff458';
 
 export const registryInstance = web3.eth.contract(registryContract.abi).at(REGISTRY_ADDRESS);
+
+const getAccount = (callback) => {
+  web3.eth.getAccounts((error, result) => {
+    if (error) {
+      console.log(error);
+    } else {
+      const acc = result[0];
+      callback(acc);
+    }
+  })
+}
 
 const getTokenInstance = (callback) => {
   registryInstance.token((error, result) => {
     if (error) {
       console.log(error);
     } else {
+      console.log(web3.eth.contract(tokenContract.abi).at(result))
       callback(web3.eth.contract(tokenContract.abi).at(result));
     }
   });
@@ -38,7 +50,7 @@ const getVotingInstance = (callback) => {
   });
 }
 
-const acc = web3.eth.accounts[0];
+// const acc = web3.eth.accounts[0];
 const MIN_DEPOSIT = 10000000000000000000;
 const BLOCK_GAS_LIMIT = 4500000; //6721975;
 
@@ -47,23 +59,8 @@ Contract functions
 */
 
 function approveTokensToRegistry(amount, callback) {
-  const address = REGISTRY_ADDRESS;
-  getTokenInstance((tokenInstance) => {
-    tokenInstance.approve(address, amount,
-      {from: acc},
-      (error, result) => {
-        if (error) {
-          console.log(error);
-        } else {
-          callback(result);
-        }
-      }
-    );
-  })
-}
-
-function approveTokensToVoting(amount, callback) {
-  registryInstance.voting((error, address) => {
+  getAccount((acc) => {
+    const address = REGISTRY_ADDRESS;
     getTokenInstance((tokenInstance) => {
       tokenInstance.approve(address, amount,
         {from: acc},
@@ -71,7 +68,7 @@ function approveTokensToVoting(amount, callback) {
           if (error) {
             console.log(error);
           } else {
-            requestVotingRights(amount, callback);
+            callback(result);
           }
         }
       );
@@ -79,93 +76,126 @@ function approveTokensToVoting(amount, callback) {
   })
 }
 
-function requestVotingRights(amount, callback) {
-  getVotingInstance((votingInstance) => {
-    votingInstance.requestVotingRights(amount, 
-      {from: acc, gas: BLOCK_GAS_LIMIT},
-      (error, result) => {
-        if (error) {
-          console.log(error);
-        } else {
-          callback();
-        }
+function approveTokensToVoting(amount, callback) {
+  getAccount((acc) => {
+    registryInstance.voting((error, address) => {
+      getTokenInstance((tokenInstance) => {
+        tokenInstance.approve(address, amount,
+          {from: acc},
+          (error, result) => {
+            if (error) {
+              console.log(error);
+            } else {
+              requestVotingRights(amount, callback);
+            }
+          }
+        );
       })
+    })
+  })
+}
+
+function requestVotingRights(amount, callback) {
+  getAccount((acc) => {
+    getVotingInstance((votingInstance) => {
+      votingInstance.requestVotingRights(amount, 
+        {from: acc, gas: BLOCK_GAS_LIMIT},
+        (error, result) => {
+          if (error) {
+            console.log(error);
+          } else {
+            callback();
+          }
+        })
+    })
   })
 }
 
 export function apply(listing, callback) {
-  approveTokensToRegistry(MIN_DEPOSIT, () => {
-    const hashedListingName = web3.sha3(listing.listingName);
-    registryInstance.apply(hashedListingName, MIN_DEPOSIT, JSON.stringify(listing), {
-      from: acc, gas: BLOCK_GAS_LIMIT, 
-    }, callback);
+  getAccount((acc) => {
+    approveTokensToRegistry(MIN_DEPOSIT, () => {
+      const hashedListingName = web3.sha3(listing.listingName);
+      registryInstance.apply(hashedListingName, MIN_DEPOSIT, JSON.stringify(listing), {
+        from: acc, gas: BLOCK_GAS_LIMIT, 
+      }, callback);
+    })
   })
 }
 
 export function challenge(listingHash, data, callback) {
-  approveTokensToRegistry(MIN_DEPOSIT, () => {
-    registryInstance.challenge(listingHash, data, 
-      {from: acc, gas: BLOCK_GAS_LIMIT},
-      callback
-    )
+  getAccount((acc) => {
+    approveTokensToRegistry(MIN_DEPOSIT, () => {
+      registryInstance.challenge(listingHash, data, 
+        {from: acc, gas: BLOCK_GAS_LIMIT},
+        callback
+      )
+    })
   })
 }
 
 export function commitVote(listingHash, challenge, tokens, vote, callback) {
-  getVotingInstance((votingInstance) => {
-    approveTokensToVoting(tokens, () => {
-      const salt = createSalt();
-      const secretHash = soliditySha3({type: 'uint', value: vote}, {type: 'uint', value: salt});
-  
-      votingInstance.getInsertPointForNumTokens(acc, tokens, challenge.challengeID, (error, prevPollID) => {
-        votingInstance.commitVote(challenge.challengeID, secretHash, tokens, prevPollID,
-          {from: acc, gas: BLOCK_GAS_LIMIT},
-          (error, result) => {
-            callback(error, {
-              voteOption: vote,
-              numTokens: tokens,
-              commitEnd: challenge.commitEndDate.toLocaleString(),
-              revealEnd: challenge.revealEndDate.toLocaleString(),
-              listingID: listingHash,
-              salt: salt,
-              pollID: challenge.challengeID.toString(),
-              secretHash: secretHash,
-              account: acc
-            });
-          }
-        )
+  getAccount((acc) => {
+    getVotingInstance((votingInstance) => {
+      approveTokensToVoting(tokens, () => {
+        const salt = createSalt();
+        const secretHash = soliditySha3({type: 'uint', value: vote}, {type: 'uint', value: salt});
+    
+        votingInstance.getInsertPointForNumTokens(acc, tokens, challenge.challengeID, (error, prevPollID) => {
+          votingInstance.commitVote(challenge.challengeID, secretHash, tokens, prevPollID,
+            {from: acc, gas: BLOCK_GAS_LIMIT},
+            (error, result) => {
+              callback(error, {
+                voteOption: vote,
+                numTokens: tokens,
+                commitEnd: challenge.commitEndDate.toLocaleString(),
+                revealEnd: challenge.revealEndDate.toLocaleString(),
+                listingID: listingHash,
+                salt: salt,
+                pollID: challenge.challengeID.toString(),
+                secretHash: secretHash,
+                account: acc
+              });
+            }
+          )
+        })
       })
     })
   })
 }
 
 export function revealVote(voteJSON) {
-  getVotingInstance((votingInstance) => {
-    votingInstance.revealVote(voteJSON.pollID, voteJSON.voteOption, voteJSON.salt,
-      {from: acc, gas: BLOCK_GAS_LIMIT},
-      (error, result) => {
-        if (error) {
-          console.log(error);
-        } else {
-          console.log(result);
+  getAccount((acc) => {
+    getVotingInstance((votingInstance) => {
+      votingInstance.revealVote(voteJSON.pollID, voteJSON.voteOption, voteJSON.salt,
+        {from: acc, gas: BLOCK_GAS_LIMIT},
+        (error, result) => {
+          if (error) {
+            console.log(error);
+          } else {
+            console.log(result);
+          }
         }
-      }
-    );
+      );
+    })
   })
 }
 
 export function updateStatus(listingHash, callback) {
-  registryInstance.updateStatus(listingHash,
-    {from: acc, gas: BLOCK_GAS_LIMIT},
-    callback
-  );
+  getAccount((acc) => {
+    registryInstance.updateStatus(listingHash,
+      {from: acc, gas: BLOCK_GAS_LIMIT},
+      callback
+    );
+  })
 }
 
 export function exit(listingHash, callback) {
-  registryInstance.exit(listingHash,
-    {from: acc, gas: BLOCK_GAS_LIMIT},
-    callback
-  );
+  getAccount((acc) => {
+    registryInstance.exit(listingHash,
+      {from: acc, gas: BLOCK_GAS_LIMIT},
+      callback
+    );
+  })
 }
 
 export function getPastEvents(type, callback) {
@@ -225,35 +255,41 @@ export function challengeResolved(id, callback) {
 //// User Info functions                                  ////////
 //////////////////////////////////////////////////////////////////
 export function getTotalEther(callback) {
-  web3.eth.getBalance(acc, (error, result) => {
-    if (error) {
-      console.log(error);
-    } else {
-      callback(web3.fromWei(result))
-    }
-  })
-}
-
-export function getTotalToken(callback) {
-  getTokenInstance((tokenInstance) => {
-    tokenInstance.balanceOf(acc, (error, totalToken) => {
+  getAccount((acc) => {
+    web3.eth.getBalance(acc, (error, result) => {
       if (error) {
         console.log(error);
       } else {
-        callback(totalToken)
+        callback(web3.fromWei(result))
       }
     })
   })
 }
 
+export function getTotalToken(callback) {
+  getAccount((acc) => {
+    getTokenInstance((tokenInstance) => {
+      tokenInstance.balanceOf(acc, (error, totalToken) => {
+        if (error) {
+          console.log(error);
+        } else {
+          callback(totalToken)
+        }
+      })
+    })
+  })
+}
+
 export function getAllowance(callback) {
-  getTokenInstance((tokenInstance) => {
-    tokenInstance.allowance(acc, REGISTRY_ADDRESS, (error, allowance) => {
-      if (error) {
-        console.log(error);
-      } else {
-        callback(allowance);
-      }
+  getAccount((acc) => {
+    getTokenInstance((tokenInstance) => {
+      tokenInstance.allowance(acc, REGISTRY_ADDRESS, (error, allowance) => {
+        if (error) {
+          console.log(error);
+        } else {
+          callback(allowance);
+        }
+      })
     })
   })
 }

@@ -6,7 +6,6 @@ class Reveal extends Component {
     errorVisibility: false,
     file: null,
     fileReader: null,
-    // fileReader: new FileReader()
   }
 
   componentDidMount() {
@@ -30,7 +29,10 @@ class Reveal extends Component {
   render() {
     return (
       <div>
-        <h3>Reveal</h3>
+        <div className="title">
+          <h3>Reveal</h3>
+        </div>
+        
         <form onSubmit={this.handleSubmit}>
           <label>
             Upload vote result file: <br />

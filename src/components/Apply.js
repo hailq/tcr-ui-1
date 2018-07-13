@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import { connect } from 'react-redux';
 import { apply } from '../web3';
 
 class Apply extends Component {
@@ -74,7 +73,7 @@ class Apply extends Component {
             />
           </div>
           <div className="form-group">
-            <label htmlFor="deposit">Deposit: </label>
+            <label htmlFor="deposit">Deposit (Tokens): </label>
             <input
               type="text"
               className="form-control"
@@ -106,10 +105,4 @@ class Apply extends Component {
   }
 }
 
-function mapStateToProps(state) {
-  return {
-    applications: state
-  }
-}
-
-export default connect(mapStateToProps)(Apply);
+export default Apply;

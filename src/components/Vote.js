@@ -58,7 +58,9 @@ class Vote extends Component {
 
     return (
       <div>
-        <h4>Vote for {name}</h4>
+        <div className="title">
+          <h3>Vote for {name}</h3>
+        </div>
 
         <form>
           <div className="form-group">
