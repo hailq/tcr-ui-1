@@ -66,6 +66,7 @@ a.button-link {
 }
 
 .tab {
+  margin-top: 5px;
   text-transform: initial;
   font-family: 'Oxygen', sans-serif;
 }
