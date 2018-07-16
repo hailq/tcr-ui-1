@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
 import { revealVote } from '../web3';
 
+import { FormGroup, Label, Input, Button, Alert } from 'reactstrap';
+
 class Reveal extends Component {
   state = {
     errorVisibility: false,
@@ -34,17 +36,19 @@ class Reveal extends Component {
         </div>
         
         <form onSubmit={this.handleSubmit}>
-          <label>
-            Upload vote result file: <br />
-            <input type="file" onChange={this.handleChange}/>
-          </label>
-          <br />
-          <button type="submit" className="btn btn-info">Submit</button>
+          <FormGroup>
+            <Label>Upload vote result file:</Label>
+            <Input
+              type="file"
+              onChange={this.handleChange}
+            />
+          </FormGroup>
+          <Button type="submit" color="info" disabled={!this.state.file}>Submit</Button>
         </form>
         {this.state.errorVisibility &&
-        <div className="alert alert-danger">
+        <Alert color="danger">
           <strong>Error:</strong> Could not commit vote. Make sure the reveal period is still valid.
-        </div>
+        </Alert>
         }
       </div>
     )

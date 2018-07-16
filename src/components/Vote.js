@@ -2,6 +2,8 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { commitVote } from '../web3';
 
+import { Button, FormGroup, Alert, Label, Input } from 'reactstrap';
+
 class Vote extends Component {
   state = {
     errorVisibility: false,
@@ -63,34 +65,31 @@ class Vote extends Component {
         </div>
 
         <form>
-          <div className="form-group">
-            <label><strong>Options:</strong></label>
-            <br />
-            <input
-              name="vote"
-              type="radio"
-              value="1"
-              onClick={this.handleClick}
-            /> Approve <br />
-            <input
-              name="vote"
-              type="radio"
-              value="0"
-              onClick={this.handleClick}
-            /> Reject <br />
-          </div>
+          <Label><strong>Options</strong></Label>
+          <FormGroup check>
+            <Label check>
+              <Input type="radio" name="vote" value="1" onClick={this.handleClick}/>
+              Approve
+            </Label>
+          </FormGroup>
+          <FormGroup check>
+            <Label check>
+              <Input type="radio" name="vote" value="2" onClick={this.handleClick}/>
+              Reject
+            </Label>
+          </FormGroup>
+          <br />
 
-          <div className="form-group">
+          <FormGroup>
             <label><strong>Number of tokens:</strong></label>
-            <br />
-            <input type="text" id="tokens" onChange={this.handleChangeTokens} />
-          </div>
-          <button
-            className="btn btn-info"
+            <Input type="text" id="tokens" onChange={this.handleChangeTokens} />
+          </FormGroup>
+          <Button
+            color="info"
             type="submit"
             onClick={this.handleSubmit}
             disabled={this.state.checked === ''}
-          >Submit Vote</button>
+          >Submit Vote</Button>
         </form>
 
         {this.state.voteJSON &&
@@ -99,9 +98,9 @@ class Vote extends Component {
         </a>
         }
         {this.state.errorVisibility &&
-        <div className="alert alert-danger">
+        <Alert color="danger">
           <strong>Error:</strong> Could not commit vote. Make sure your account has sufficient balance and the voting period is still valid.
-        </div>
+        </Alert>
         }
       </div>
     );

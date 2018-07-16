@@ -34,7 +34,6 @@ const getTokenInstance = (callback) => {
     if (error) {
       console.log(error);
     } else {
-      console.log(web3.eth.contract(tokenContract.abi).at(result))
       callback(web3.eth.contract(tokenContract.abi).at(result));
     }
   });
