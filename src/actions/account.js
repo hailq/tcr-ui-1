@@ -2,7 +2,7 @@ import {
   getTotalEther,
   getTotalToken,
   getAllowance
-} from '../web3'
+} from '../web3/web3'
 
 export const SET_ETHER = "SET_ETHER";
 export const SET_TOKEN = "SET_TOKEN";

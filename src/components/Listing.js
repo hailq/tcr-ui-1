@@ -2,13 +2,14 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 
-import { updateStatus, challengeResolved } from '../web3';
+import { updateStatus, challengeResolved } from '../web3/web3';
 import { toMinuteAndSecond } from '../utils';
 
 import { ListGroup, ListGroupItem, Button, Alert } from 'reactstrap';
 
 class Listing extends Component {
   state = {
+    successVisibility: false,
     errorVisibility: false,
     appState: '',
     timeTillCommit: -1,
@@ -16,7 +17,7 @@ class Listing extends Component {
   }
 
   componentDidMount() {
-    // Update the state every 1 second to show the countdown effect.
+    // Update the state every 1 second to show the countdown timer.
     this.interval = setInterval(() => {
       this.setState((prevState) => {
         let timeTillCommit = prevState.timeTillCommit - 1;
@@ -94,17 +95,20 @@ class Listing extends Component {
         this.setState({errorVisibility: true});
       } else {
         console.log('Update status success.');
-        this.props.history.push('/')
-        window.location.reload(true);
+        this.setState({ successVisibility: true });
+        // this.props.history.push('/')
+        // window.location.reload(true);
       }
     });
   }
 
   render() {
+    console.log(this.props.applications);
     const id = this.props.match.params.id;
     const listing = this.props.applications[id];
+    console.log(listing);
 
-    if (this.state.appState !== '') {
+    if (this.state.appState !== '' && listing) {
       const endDate = new Date(parseInt(listing.appEndDate) * 1000); // sec to millisec
 
       return (
@@ -168,8 +172,14 @@ class Listing extends Component {
             onClick={this.handleUpdateStatus}
           >Update Status</Button>
           }
-
           <br />
+
+          {/* Success/error notifications. */}
+          {this.state.successVisibility &&
+          <Alert color="success">
+            <strong>Update status successfully.</strong>
+          </Alert>
+          }
           {this.state.errorVisibility &&
           <Alert color="danger">
             <strong>Error:</strong> Could not perform the request.

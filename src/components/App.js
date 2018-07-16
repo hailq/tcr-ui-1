@@ -13,7 +13,7 @@ import Vote from './Vote';
 import Reveal from './Reveal';
 
 import { handleGetAllData } from '../actions';
-import { registryInstance } from '../web3';
+import { registryInstance } from '../web3/web3';
 import { _APPLICATION, _CHALLENGE, _LISTINGWITHDRAWN } from '../events';
 import { registerApplication, getAllApplicationData, removeApplication } from '../actions/applications';
 import { handleNewChallenge } from '../actions/challenges';

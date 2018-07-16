@@ -1,4 +1,4 @@
-import { getPastEvents, getListing } from '../web3';
+import { getPastEvents, getListing } from '../web3/web3';
 import { _APPLICATION } from '../events';
 
 export const REGISTER_APPLICATION = 'REGISTER_APPLICATION';

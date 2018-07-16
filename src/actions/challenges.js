@@ -1,4 +1,4 @@
-import { getPastEvents } from '../web3';
+import { getPastEvents } from '../web3/web3';
 import { _CHALLENGE } from '../events';
 import { registerApplication } from './applications';
 

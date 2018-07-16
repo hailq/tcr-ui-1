@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { revealVote } from '../web3';
+import { revealVote } from '../web3/web3';
 
 import { FormGroup, Label, Input, Button, Alert } from 'reactstrap';
 

@@ -1,10 +1,11 @@
 import Web3 from 'web3';
 
-import * as registryContract from './contracts/Registry.json'
-import * as tokenContract from './contracts/EIP20.json'
-import * as votingContract from './contracts/PLCRVoting.json';
+import config from '../config/config.json';
+import registryContract from '../contracts/Registry.json'
+import tokenContract from '../contracts/EIP20.json'
+import votingContract from '../contracts/PLCRVoting.json';
 
-import { createSalt } from './utils';
+import { createSalt } from '../utils';
 import { soliditySha3 } from 'web3-utils';
 
 let web3;
@@ -14,7 +15,9 @@ if (typeof window.web3 !== 'undefined') {
   web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:7545"));
 }
 
-const REGISTRY_ADDRESS = '0xbececb27f6da8475ab50bac2c66a5fdcee8ff458';
+const REGISTRY_ADDRESS = config.registryAddress;
+const MIN_DEPOSIT = config.minDeposit;
+const GAS_LIMIT = config.gasLimit;
 
 export const registryInstance = web3.eth.contract(registryContract.abi).at(REGISTRY_ADDRESS);
 
@@ -48,10 +51,6 @@ const getVotingInstance = (callback) => {
     }
   });
 }
-
-// const acc = web3.eth.accounts[0];
-const MIN_DEPOSIT = 10000000000000000000;
-const BLOCK_GAS_LIMIT = 4500000; //6721975;
 
 /* 
 Contract functions
@@ -98,7 +97,7 @@ function requestVotingRights(amount, callback) {
   getAccount((acc) => {
     getVotingInstance((votingInstance) => {
       votingInstance.requestVotingRights(amount, 
-        {from: acc, gas: BLOCK_GAS_LIMIT},
+        {from: acc, gas: GAS_LIMIT},
         (error, result) => {
           if (error) {
             console.log(error);
@@ -115,7 +114,7 @@ export function apply(listing, callback) {
     approveTokensToRegistry(MIN_DEPOSIT, () => {
       const hashedListingName = web3.sha3(listing.listingName);
       registryInstance.apply(hashedListingName, MIN_DEPOSIT, JSON.stringify(listing), {
-        from: acc, gas: BLOCK_GAS_LIMIT, 
+        from: acc, gas: GAS_LIMIT, 
       }, callback);
     })
   })
@@ -125,7 +124,7 @@ export function challenge(listingHash, data, callback) {
   getAccount((acc) => {
     approveTokensToRegistry(MIN_DEPOSIT, () => {
       registryInstance.challenge(listingHash, data, 
-        {from: acc, gas: BLOCK_GAS_LIMIT},
+        {from: acc, gas: GAS_LIMIT},
         callback
       )
     })
@@ -141,7 +140,7 @@ export function commitVote(listingHash, challenge, tokens, vote, callback) {
     
         votingInstance.getInsertPointForNumTokens(acc, tokens, challenge.challengeID, (error, prevPollID) => {
           votingInstance.commitVote(challenge.challengeID, secretHash, tokens, prevPollID,
-            {from: acc, gas: BLOCK_GAS_LIMIT},
+            {from: acc, gas: GAS_LIMIT},
             (error, result) => {
               callback(error, {
                 voteOption: vote,
@@ -166,7 +165,7 @@ export function revealVote(voteJSON) {
   getAccount((acc) => {
     getVotingInstance((votingInstance) => {
       votingInstance.revealVote(voteJSON.pollID, voteJSON.voteOption, voteJSON.salt,
-        {from: acc, gas: BLOCK_GAS_LIMIT},
+        {from: acc, gas: GAS_LIMIT},
         (error, result) => {
           if (error) {
             console.log(error);
@@ -182,7 +181,7 @@ export function revealVote(voteJSON) {
 export function updateStatus(listingHash, callback) {
   getAccount((acc) => {
     registryInstance.updateStatus(listingHash,
-      {from: acc, gas: BLOCK_GAS_LIMIT},
+      {from: acc, gas: GAS_LIMIT},
       callback
     );
   })
@@ -191,7 +190,7 @@ export function updateStatus(listingHash, callback) {
 export function exit(listingHash, callback) {
   getAccount((acc) => {
     registryInstance.exit(listingHash,
-      {from: acc, gas: BLOCK_GAS_LIMIT},
+      {from: acc, gas: GAS_LIMIT},
       callback
     );
   })

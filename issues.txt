@@ -4,4 +4,5 @@
 - "TypeError: Cannot read property 'data' of undefined"
 To reproduce: challenge a listing, then go back to that listing page, then refresh page.
 - The navbar disappears when scale back horizontally.
-- 
+- "TypeError: Cannot read property 'appEndDate' of undefined" on listing page.
+To reproduce: Go to a listing, update status, then refresh.

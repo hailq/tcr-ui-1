@@ -3,8 +3,16 @@ import { connect } from 'react-redux';
 
 import { ListGroup, ListGroupItem } from 'reactstrap';
 
+import config from '../config/config';
+
 class Account extends Component {
   render() {
+    let ether, token, allowance;
+    if (this.props.ether && this.props.token && this.props.allowance) {
+      ether = this.props.ether.toFixed(config.numberOfDecimalPlaces);
+      token = Math.round(this.props.token / config.scale);
+      allowance = Math.round(this.props.allowance / config.scale);
+    }
     return (
       <div>
         <div className="title">
@@ -13,13 +21,13 @@ class Account extends Component {
 
         <ListGroup>
           <ListGroupItem>
-            <b>Ether:</b> {this.props.ether ? this.props.ether.toString() : 0}
+            <b>Ether:</b> {ether}
           </ListGroupItem>
           <ListGroupItem>
-            <b>Tokens:</b> {this.props.token ? this.props.token.toString() : 0}
+            <b>Tokens:</b> {token}
           </ListGroupItem>
           <ListGroupItem>
-            <b>Approved Tokens:</b> {this.props.allowance ? this.props.allowance.toString() : 0}
+            <b>Approved Tokens:</b> {allowance}
           </ListGroupItem>
         </ListGroup>
         

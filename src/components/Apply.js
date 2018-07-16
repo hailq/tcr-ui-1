@@ -1,10 +1,11 @@
 import React, { Component } from 'react';
-import { apply } from '../web3';
+import { apply } from '../web3/web3';
 
 import { FormGroup, Input, Label, Button, Alert, Dropdown, DropdownToggle, DropdownMenu, DropdownItem } from 'reactstrap';
 
 class Apply extends Component {
   state = {
+    successVisibility: false,
     errorVisibility: false,
     dropdownOpen: false,
     listingName: '',
@@ -36,6 +37,7 @@ class Apply extends Component {
         this.setState({errorVisibility: true,})
       } else {
         console.log(`Application ${listing.listingName} success.`);
+        this.setState({successVisibility: true,})
       }
     })
   }
@@ -110,6 +112,11 @@ class Apply extends Component {
           <Button type="submit" color="info">Submit Application</Button>
         </form>
         <br />
+        {this.state.successVisibility &&
+        <Alert color="success">
+          <strong>Application created successfully.</strong>
+        </Alert>
+        }
         {this.state.errorVisibility &&
         <Alert color="danger">
           <strong>Error:</strong> Could not create application. Make sure your account has sufficient ballance and the listing name is not in the registry.

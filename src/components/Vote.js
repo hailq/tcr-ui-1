@@ -1,11 +1,13 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { commitVote } from '../web3';
+import { commitVote } from '../web3/web3';
+import config from '../config/config';
 
 import { Button, FormGroup, Alert, Label, Input } from 'reactstrap';
 
 class Vote extends Component {
   state = {
+    successVisibility: false,
     errorVisibility: false,
     checked: '',
     tokens: "",
@@ -26,7 +28,7 @@ class Vote extends Component {
     const listingHash = this.props.match.params.id;
     const challengeID = parseInt(this.props.applications[listingHash].challengeID, 10);
     const challenge = this.props.challenges[challengeID];
-    const tokens = parseInt(this.state.tokens, 10);
+    const tokens = parseInt(this.state.tokens, 10) * config.scale;
 
     commitVote(listingHash, challenge, tokens, this.state.checked, (error, voteJSON) => {
       if (error) {
@@ -35,7 +37,10 @@ class Vote extends Component {
       } else {
         console.log("Commit vote success.");
         console.log(voteJSON);
-        this.setState({voteJSON});
+        this.setState({
+          voteJSON,
+          successVisibility: true
+        });
       }
     })
   }
@@ -92,10 +97,19 @@ class Vote extends Component {
           >Submit Vote</Button>
         </form>
 
+        {/* Link to download vote json file */}
         {this.state.voteJSON &&
         <a href="#" onClick={() => this.download('vote.json', JSON.stringify(this.state.voteJSON))}>
           Download vote JSON.
         </a>
+        }
+
+        <br />
+        {/* Success/error notifications. */}
+        {this.state.successVisibility &&
+        <Alert color="success">
+          <strong>Voted success.</strong>
+        </Alert>
         }
         {this.state.errorVisibility &&
         <Alert color="danger">

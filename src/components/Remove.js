@@ -1,12 +1,13 @@
 import React, { Component } from 'react';
 import {connect} from 'react-redux';
 
-import { exit } from '../web3';
+import { exit } from '../web3/web3';
 
 import { Button, FormGroup, Input, Label, Alert } from 'reactstrap';
 
 class Remove extends Component {
   state = {
+    successVisibility: false,
     errorVisibility: false,
     name: ''
   }
@@ -28,7 +29,7 @@ class Remove extends Component {
           this.setState({errorVisibility: true});
         } else {
           console.log("Remove application success.");
-          this.props.history.push('/');
+          this.setState({ successVisibility: true });
         }
       });
     }
@@ -58,9 +59,15 @@ class Remove extends Component {
         </form>
 
         <br />
+        {/* Success/error notifications. */}
+        {this.state.successVisibility &&
+        <Alert color="success">
+          <strong>Successfully withdrew the application.</strong>
+        </Alert>
+        }
         {this.state.errorVisibility &&
         <Alert color="danger">
-          <strong>Error:</strong> Could not remove application. Make sure you are the owner of the listing and the listing name is correct.
+          <strong>Error:</strong> Could not withdraw the application. Make sure you are the owner of the listing and the listing name is correct.
         </Alert>
         }
       </div>
