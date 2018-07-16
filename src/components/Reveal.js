@@ -5,6 +5,7 @@ import { FormGroup, Label, Input, Button, Alert } from 'reactstrap';
 
 class Reveal extends Component {
   state = {
+    successVisibility: false,
     errorVisibility: false,
     file: null,
     fileReader: null,
@@ -14,7 +15,20 @@ class Reveal extends Component {
     let fileReader = new FileReader();
     fileReader.onload = (e) => {
       const vote = JSON.parse(e.target.result);
-      revealVote(vote);
+      revealVote(vote, (error, result) => {
+        if (error) {
+          console.log(error);
+          this.setState({
+            errorVisibility: true,
+            successVisibility: false
+          })
+        } else {
+          this.setState({
+            errorVisibility: false,
+            successVisibility: true
+          })
+        }
+      });
     }
     this.setState({ fileReader })
   }
@@ -45,9 +59,17 @@ class Reveal extends Component {
           </FormGroup>
           <Button type="submit" color="info" disabled={!this.state.file}>Submit</Button>
         </form>
+        <br />
+
+        {/* Success/error notifications. */}
+        {this.state.successVisibility &&
+        <Alert color="success">
+          <strong><ion-icon name="checkmark-circle"></ion-icon> Revealed vote successfully.</strong>
+        </Alert>
+        }
         {this.state.errorVisibility &&
         <Alert color="danger">
-          <strong>Error:</strong> Could not commit vote. Make sure the reveal period is still valid.
+          <strong><ion-icon name="close-circle"></ion-icon> Error:</strong> Could not commit vote. Make sure the reveal period is still valid.
         </Alert>
         }
       </div>

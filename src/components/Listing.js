@@ -103,10 +103,8 @@ class Listing extends Component {
   }
 
   render() {
-    console.log(this.props.applications);
     const id = this.props.match.params.id;
     const listing = this.props.applications[id];
-    console.log(listing);
 
     if (this.state.appState !== '' && listing) {
       const endDate = new Date(parseInt(listing.appEndDate) * 1000); // sec to millisec
@@ -177,12 +175,12 @@ class Listing extends Component {
           {/* Success/error notifications. */}
           {this.state.successVisibility &&
           <Alert color="success">
-            <strong>Update status successfully.</strong>
+            <strong><ion-icon name="checkmark-circle"></ion-icon> Update status successfully.</strong>
           </Alert>
           }
           {this.state.errorVisibility &&
           <Alert color="danger">
-            <strong>Error:</strong> Could not perform the request.
+            <strong><ion-icon name="close-circle"></ion-icon> Error:</strong> Could not perform the request.
           </Alert>
           }
         </div>

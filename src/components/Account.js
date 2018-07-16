@@ -13,6 +13,7 @@ class Account extends Component {
       token = Math.round(this.props.token / config.scale);
       allowance = Math.round(this.props.allowance / config.scale);
     }
+
     return (
       <div>
         <div className="title">
@@ -30,7 +31,6 @@ class Account extends Component {
             <b>Approved Tokens:</b> {allowance}
           </ListGroupItem>
         </ListGroup>
-        
       </div>
     );
   }

@@ -1,14 +1,14 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
+import config from '../config/config';
 
 import { Nav, NavItem } from 'reactstrap';
 
 export default function NavBar() {
   return (
     <div className="header bg-dark">
-      <span className="glyphicon glyphicon-road"></span>
       <span id="registry-name">
-        <strong>Token Curated Registry</strong>
+        <strong>{config.name}</strong>
       </span>
 
       <span className="float-right">
@@ -44,22 +44,22 @@ export default function NavBar() {
         <ul className="nav">
           <li className="nav-item">
             <NavLink to='/' className="nav-link">
-              Listings
+            <ion-icon name="list-box"></ion-icon> Listings
             </NavLink>
           </li>
           <li className="nav-item">
             <NavLink to='/apply' className="nav-link">
-              Apply
+            <ion-icon name="create"></ion-icon> Apply
             </NavLink>
           </li>
           <li className="nav-item">
             <NavLink to='/account' className="nav-link">
-              Account
+            <ion-icon name="person"></ion-icon> Account
             </NavLink>
           </li>
           <li className="nav-item">
             <NavLink to='/remove' className="nav-link">
-              Remove an Application
+            <ion-icon name="trash"></ion-icon> Remove an Application
             </NavLink>
           </li>
         </ul>

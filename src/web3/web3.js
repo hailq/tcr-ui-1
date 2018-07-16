@@ -8,7 +8,7 @@ import votingContract from '../contracts/PLCRVoting.json';
 import { createSalt } from '../utils';
 import { soliditySha3 } from 'web3-utils';
 
-let web3;
+export let web3;
 if (typeof window.web3 !== 'undefined') {
   web3 = new Web3(window.web3.currentProvider);
 } else {
@@ -161,18 +161,12 @@ export function commitVote(listingHash, challenge, tokens, vote, callback) {
   })
 }
 
-export function revealVote(voteJSON) {
+export function revealVote(voteJSON, callback) {
   getAccount((acc) => {
     getVotingInstance((votingInstance) => {
       votingInstance.revealVote(voteJSON.pollID, voteJSON.voteOption, voteJSON.salt,
         {from: acc, gas: GAS_LIMIT},
-        (error, result) => {
-          if (error) {
-            console.log(error);
-          } else {
-            console.log(result);
-          }
-        }
+        callback
       );
     })
   })

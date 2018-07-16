@@ -68,7 +68,7 @@ class Challenge extends Component {
         }
         {this.state.errorVisibility &&
         <Alert color="danger">
-          <strong>Error:</strong> Could not create application. Make sure your account has sufficient ballance and the listing name is not in the registry.
+          <strong><ion-icon name="close-circle"></ion-icon> Error:</strong> Could not create application. Make sure your account has sufficient ballance and the listing name is not in the registry.
         </Alert>
         }
       </div>

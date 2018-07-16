@@ -114,12 +114,12 @@ class Apply extends Component {
         <br />
         {this.state.successVisibility &&
         <Alert color="success">
-          <strong>Application created successfully.</strong>
+          <strong><ion-icon name="checkmark-circle"></ion-icon> Application created successfully.</strong>
         </Alert>
         }
         {this.state.errorVisibility &&
         <Alert color="danger">
-          <strong>Error:</strong> Could not create application. Make sure your account has sufficient ballance and the listing name is not in the registry.
+          <strong><ion-icon name="close-circle"></ion-icon> Error:</strong> Could not create application. Make sure your account has sufficient ballance and the listing name is not in the registry.
         </Alert>
         }
       </div>

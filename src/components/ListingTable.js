@@ -16,7 +16,9 @@ class ListingTable extends Component {
           color="info"
           size="sm"
           block
-        >{this.props.name} ({this.props.listings.length})</Button>
+        >
+          {this.props.name} ({this.props.listings.length}) <ion-icon name="arrow-dropdown"></ion-icon>
+        </Button>
         <Collapse isOpen={this.props.currentTab === this.props.id}>
           <ListGroup>
             {

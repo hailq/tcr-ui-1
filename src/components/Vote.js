@@ -100,7 +100,7 @@ class Vote extends Component {
         {/* Link to download vote json file */}
         {this.state.voteJSON &&
         <a href="#" onClick={() => this.download('vote.json', JSON.stringify(this.state.voteJSON))}>
-          Download vote JSON.
+          <ion-icon name="download"></ion-icon> Download vote JSON.
         </a>
         }
 
@@ -108,12 +108,12 @@ class Vote extends Component {
         {/* Success/error notifications. */}
         {this.state.successVisibility &&
         <Alert color="success">
-          <strong>Voted success.</strong>
+          <strong><ion-icon name="checkmark-circle"></ion-icon> Voted success.</strong>
         </Alert>
         }
         {this.state.errorVisibility &&
         <Alert color="danger">
-          <strong>Error:</strong> Could not commit vote. Make sure your account has sufficient balance and the voting period is still valid.
+          <strong><ion-icon name="close-circle"></ion-icon> Error:</strong> Could not commit vote. Make sure your account has sufficient balance and the voting period is still valid.
         </Alert>
         }
       </div>

@@ -62,12 +62,12 @@ class Remove extends Component {
         {/* Success/error notifications. */}
         {this.state.successVisibility &&
         <Alert color="success">
-          <strong>Successfully withdrew the application.</strong>
+          <strong><ion-icon name="checkmark-circle"></ion-icon> Successfully withdrew the application.</strong>
         </Alert>
         }
         {this.state.errorVisibility &&
         <Alert color="danger">
-          <strong>Error:</strong> Could not withdraw the application. Make sure you are the owner of the listing and the listing name is correct.
+          <strong><ion-icon name="close-circle"></ion-icon> Error:</strong> Could not withdraw the application. Make sure you are the owner of the listing and the listing name is correct.
         </Alert>
         }
       </div>
