@@ -5,6 +5,9 @@ import { Link } from 'react-router-dom';
 import { updateStatus, challengeResolved } from '../web3/web3';
 import { toMinuteAndSecond } from '../utils';
 
+import Challenge from './Challenge';
+import Vote from './Vote';
+import Reveal from './Reveal';
 import { ListGroup, ListGroupItem, Button, Alert } from 'reactstrap';
 
 class Listing extends Component {
@@ -152,6 +155,7 @@ class Listing extends Component {
               Challenge
             </Link>
           </Button>
+          // <Challenge />
           }
 
           {this.state.appState === 'reveal' &&
@@ -163,6 +167,7 @@ class Listing extends Component {
               Reveal Vote
             </Link>
           </Button>
+          // <Reveal />
           }
 
           {this.state.appState === 'updateStatus' && <Button

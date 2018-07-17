@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import { revealVote } from '../web3/web3';
 
 import { FormGroup, Label, Input, Button, Alert } from 'reactstrap';
@@ -43,6 +44,7 @@ class Reveal extends Component {
   }
 
   render() {
+    console.log(this.props);
     return (
       <div>
         <div className="title">
@@ -77,4 +79,8 @@ class Reveal extends Component {
   }
 }
 
-export default Reveal
+function mapStateToProps({ challenges }) {
+  return { challenges };
+}
+
+export default connect(mapStateToProps)(Reveal);

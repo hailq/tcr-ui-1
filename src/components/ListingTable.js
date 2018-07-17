@@ -5,7 +5,6 @@ import { Link } from 'react-router-dom';
 class ListingTable extends Component {
   render() {
     const listings = this.props.listings;
-    // console.log(listings);
 
     return (
       <div>

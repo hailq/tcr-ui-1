@@ -33,13 +33,17 @@ class Vote extends Component {
     commitVote(listingHash, challenge, tokens, this.state.checked, (error, voteJSON) => {
       if (error) {
         console.log(error);
-        this.setState({errorVisibility: true});
+        this.setState({
+          errorVisibility: true,
+          successVisibility: false,
+        });
       } else {
         console.log("Commit vote success.");
         console.log(voteJSON);
         this.setState({
           voteJSON,
-          successVisibility: true
+          successVisibility: true,
+          errorVisibility: true,
         });
       }
     })

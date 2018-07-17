@@ -26,10 +26,16 @@ class Remove extends Component {
       exit(listingHash, (error, result) => {
         if (error) {
           console.log(error);
-          this.setState({errorVisibility: true});
+          this.setState({
+            errorVisibility: true,
+            successVisibility: false
+          });
         } else {
           console.log("Remove application success.");
-          this.setState({ successVisibility: true });
+          this.setState({
+            successVisibility: true,
+            errorVisibility: false
+          });
         }
       });
     }

@@ -98,7 +98,6 @@ class App extends Component {
   }
 
   render() {
-    console.log(this.props);
     if (!this.state.isCheckingAddress) {
       return (
         <div>
@@ -118,8 +117,10 @@ class App extends Component {
                 <Route path='/applications/:id/reveal' component={Reveal} />
               </div> :
               <Alert color="danger">
-                <legend><strong><ion-icon name="close-circle"></ion-icon> Error:</strong></legend>
-                Your network address is incorrect. Please use another network.
+                <legend>
+                  <strong><ion-icon name="close-circle"></ion-icon> Error:</strong>
+                </legend>
+                Your network address is incorrect. Please choose another network.
               </Alert>
               }
             </div>
