@@ -1,7 +1,12 @@
-import { SET_ETHER, SET_TOKEN, SET_ALLOWANCE } from '../actions/account'
+import { SET_ACCOUNT, SET_ETHER, SET_TOKEN, SET_ALLOWANCE } from '../actions/account'
 
 export default function account(state={}, action) {
   switch (action.type) {
+    case SET_ACCOUNT:
+      return {
+        ...state,
+        account: action.account
+      }
     case SET_ETHER:
       return {
         ...state,

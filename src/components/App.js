@@ -15,9 +15,10 @@ import Reveal from './Reveal';
 import { Alert } from 'reactstrap';
 
 import { handleGetAllData } from '../actions';
-import { registryInstance } from '../web3/web3';
+import { getAccount, registryInstance } from '../web3/web3';
 import { _APPLICATION, _CHALLENGE, _LISTINGWITHDRAWN } from '../events';
 import { registerApplication, getAllApplicationData, removeApplication } from '../actions/applications';
+import { setUserInfo } from '../actions/account'
 import { handleNewChallenge } from '../actions/challenges';
 
 import '../App.css';
@@ -25,74 +26,80 @@ import '../App.css';
 class App extends Component {
   state = {
     addressIsValid: false,
-    loadingFinished: false
+    isCheckingAddress: true
   }
 
   componentDidMount() {
-    this.validateAddress();
-
-    if (this.state.addressIsValid) {
-      this.props.dispatch(handleGetAllData());
-      
-      registryInstance[_APPLICATION]().watch((error, result) => {
-        if (error) {
-          console.log(error);
-        } else {
-          getAllApplicationData(result, (application) => {
-            this.props.dispatch(registerApplication(application));
-          });
-        }
-      })
-
-      registryInstance[_CHALLENGE]().watch((error, result) => {
-        if (error) {
-          console.log(error);
-        } else {
-          const challengedListing = this.props.applications[result.args.listingHash];
-          if (challengedListing)
-            this.props.dispatch(handleNewChallenge(result, challengedListing));
-        }
-      })
-
-      registryInstance[_LISTINGWITHDRAWN]().watch((error, result) => {
-        const withdrawnListingHash = result.args.listingHash;
-        if (error) {
-          console.log(error);
-        } else {
-          this.props.dispatch(removeApplication(withdrawnListingHash));
-        }
-      })
-    }
+    this.updateState();
   }
 
-  componentDidUpdate(prevProps) {
-    if (this.props.applications != prevProps.applications) {
-      this.validateAddress();
-    }
-  }
-
-  validateAddress = () => {
+  // Check if the network address is valid, then call the callback function with
+  // the result.
+  validateAddress = (callback) => {
     registryInstance.token((error, result) => {
       if (error) {
         console.log(error);
       } else {
-        console.log(result);
-        let addressIsValid = true;
-        if (result === '0x') addressIsValid = false;
-        this.setState({
-          addressIsValid,
-          loadingFinished: true,
-        })
+        let addressIsValid = result === '0x' ? false : true;
+        callback(addressIsValid);
       }
     })
   }
 
   updateState = () => {
+    this.validateAddress((addressIsValid) => {
+      if (addressIsValid) {
+        this.props.dispatch(handleGetAllData());
+        
+        // set an interval to update when user changes their account.
+        this.interval = setInterval(() => {
+          getAccount((account) => {
+            if (account !== this.props.account) {
+              this.props.dispatch(setUserInfo());
+            }
+          })
+        }, 100);
 
+        // contract event listeners
+        registryInstance[_APPLICATION]().watch((error, result) => {
+          if (error) {
+            console.log(error);
+          } else {
+            getAllApplicationData(result, (application) => {
+              this.props.dispatch(registerApplication(application));
+            });
+          }
+        })
+  
+        registryInstance[_CHALLENGE]().watch((error, result) => {
+          if (error) {
+            console.log(error);
+          } else {
+            const challengedListing = this.props.applications[result.args.listingHash];
+            if (challengedListing)
+              this.props.dispatch(handleNewChallenge(result, challengedListing));
+          }
+        })
+  
+        registryInstance[_LISTINGWITHDRAWN]().watch((error, result) => {
+          const withdrawnListingHash = result.args.listingHash;
+          if (error) {
+            console.log(error);
+          } else {
+            this.props.dispatch(removeApplication(withdrawnListingHash));
+          }
+        })
+      }
+      this.setState({
+        addressIsValid,
+        isCheckingAddress: false
+      })
+    });
   }
 
   render() {
-    if (this.state.loadingFinished) {
+    console.log(this.props);
+    if (!this.state.isCheckingAddress) {
       return (
         <div>
           <Router>
@@ -111,7 +118,8 @@ class App extends Component {
                 <Route path='/applications/:id/reveal' component={Reveal} />
               </div> :
               <Alert color="danger">
-                <strong><ion-icon name="close-circle"></ion-icon> Error:</strong> Could not load the application. Please check your network address.
+                <legend><strong><ion-icon name="close-circle"></ion-icon> Error:</strong></legend>
+                Your network address is incorrect. Please use another network.
               </Alert>
               }
             </div>
@@ -123,8 +131,11 @@ class App extends Component {
   }
 }
 
-function mapStateToProps({ applications }) {
-  return { applications };
+function mapStateToProps({ applications, account }) {
+  return { 
+    account: account.account,
+    applications
+  };
 }
 
 export default connect(mapStateToProps)(App);

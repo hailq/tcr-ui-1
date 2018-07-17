@@ -1,18 +1,29 @@
 import {
+  getAccount,
   getTotalEther,
   getTotalToken,
   getAllowance
 } from '../web3/web3'
 
+export const SET_ACCOUNT = "SET_ACCOUNT";
 export const SET_ETHER = "SET_ETHER";
 export const SET_TOKEN = "SET_TOKEN";
 export const SET_ALLOWANCE = "SET_ALLOWANCE";
 
 export function setUserInfo() {
   return (dispatch) => {
+    dispatch(handleSetAccount());
     dispatch(handleSetEther());
     dispatch(handleSetToken());
     dispatch(handleSetAllowance())
+  }
+}
+
+function handleSetAccount() {
+  return (dispatch) => {
+    getAccount((account) => {
+      dispatch(setAccount(account))
+    });
   }
 }
 
@@ -37,6 +48,13 @@ function handleSetAllowance() {
     getAllowance((allowance) => {
       dispatch(setAllowance(allowance));
     })
+  }
+}
+
+function setAccount(account) {
+  return {
+    type: SET_ACCOUNT,
+    account
   }
 }
 

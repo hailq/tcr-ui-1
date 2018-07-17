@@ -21,7 +21,7 @@ const GAS_LIMIT = config.gasLimit;
 
 export const registryInstance = web3.eth.contract(registryContract.abi).at(REGISTRY_ADDRESS);
 
-const getAccount = (callback) => {
+export const getAccount = (callback) => {
   web3.eth.getAccounts((error, result) => {
     if (error) {
       console.log(error);
