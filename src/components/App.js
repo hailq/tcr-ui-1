@@ -33,16 +33,33 @@ class App extends Component {
   // Check if the network address is valid, then call the callback function with
   // the result.
   validateAddress = (callback) => {
-    registryInstance.token((error, result) => {
-      if (error) {
-        console.log(error);
-        let addressIsValid = false;
-        callback(addressIsValid);
+    let addressIsValid = false;
+    getAccount((acc) => {
+      if (acc) {
+        registryInstance.token((error, address) => {
+          if (error) {
+            console.log(error);
+            callback(addressIsValid);
+          } else {
+            if (address !== '0x') addressIsValid = true;
+            callback(addressIsValid);
+          }
+        })
       } else {
-        let addressIsValid = result === '0x' ? false : true;
         callback(addressIsValid);
       }
     })
+    // registryInstance.token((error, result) => {
+    //   if (error) {
+    //     console.log(error);
+    //     let addressIsValid = false;
+    //     callback(addressIsValid);
+    //   } else {
+    //     console.log(result);
+    //     let addressIsValid = result === '0x' ? false : true;
+    //     callback(addressIsValid);
+    //   }
+    // })
   }
 
   updateState = () => {
