@@ -59,7 +59,7 @@ export default function NavBar() {
           </li>
           <li className="nav-item">
             <NavLink to='/remove' className="nav-link">
-            <ion-icon name="trash"></ion-icon> Remove an Application
+            <ion-icon name="trash"></ion-icon> Withdraw an Application
             </NavLink>
           </li>
         </ul>

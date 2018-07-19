@@ -3,6 +3,8 @@ import { connect } from 'react-redux';
 
 import ListingTable from './ListingTable';
 
+import { challengeResolved } from '../web3/web3';
+
 class Listings extends Component {
   state = {
     registry: [],
@@ -29,7 +31,11 @@ class Listings extends Component {
 
     allApps.forEach((app) => {
       if (app.challengeID === "0") {
-        applications.push(app);
+        if (parseInt(app.appEndDate, 10) < Date.now() / 1000) {
+          voting.push(app); // app wasn't challenged during the app period so just need to update status.
+        } else {
+          applications.push(app);
+        }
       } else {
         if (parseInt(allChallenges[app.challengeID].revealEndDate, 10) > Date.now() / 1000) {
           // revealEndDate isn't over so it's being voted.
@@ -43,7 +49,6 @@ class Listings extends Component {
         }
       }
     })
-    
     this.setState({ registry, applications, voting });
   }
 

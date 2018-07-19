@@ -1,5 +1,3 @@
-import { connect } from 'react-redux';
-
 import React, { Component } from 'react';
 import { challenge } from '../web3/web3';
 
@@ -20,7 +18,7 @@ class Challenge extends Component {
 
   handleSubmit = (e) => {
     e.preventDefault();
-    const listingHash = this.props.match.params.id;
+    const listingHash = this.props.listingHash;
     challenge(listingHash, this.state.reasoning, (error, result) => {
       if (error) {
         console.log(error);
@@ -34,17 +32,13 @@ class Challenge extends Component {
   }
 
   render() {
-    const app = this.props.applications[this.props.match.params.id];
-    const listingName = app ? app.data.listingName : "";
-
-    return (
+    return this.props.appState !== 'challenge' ?
+      <div className="font-italic">
+        There is already an active challenge for this application.
+      </div> :
       <div>
-        <div className="title">
-          <h3>Challenge {listingName}</h3>
-        </div>
-
         <div>
-          <label>Stake:</label> {config.minDeposit / config.scale} Tokens
+          <label>Challenge stake:</label> {config.minDeposit / config.scale} Tokens
         </div>
 
         <form onSubmit={this.handleSubmit}>
@@ -68,16 +62,11 @@ class Challenge extends Component {
         }
         {this.state.errorVisibility &&
         <Alert color="danger">
-          <strong><ion-icon name="close-circle"></ion-icon> Error:</strong> Could not create application. Make sure your account has sufficient ballance and the listing name is not in the registry.
+          <strong><ion-icon name="close-circle"></ion-icon> Error:</strong> Could not challenge this application.
         </Alert>
         }
-      </div>
-    );
+      </div>;
   }
 }
 
-function mapStateToProps({ applications }) {
-  return { applications };
-}
-
-export default connect(mapStateToProps)(Challenge);
+export default Challenge;

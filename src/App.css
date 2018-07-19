@@ -61,6 +61,11 @@ a.listing {
   font-family: 'Raleway', sans-serif;
 }
 
+.btn-link {
+  text-transform: none;
+  font-family: 'Oxygen', sans-serif;
+}
+
 a.button-link {
   color: white;
 }
@@ -75,4 +80,10 @@ a.button-link {
   font-style: italic;
   margin-top: 5px;
   margin-left: 10px;
+}
+
+.profile-picture {
+  border-radius: 50%;
+  width: 80px;
+  height: 80px;
 }

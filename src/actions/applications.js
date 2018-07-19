@@ -10,19 +10,19 @@ export function handleGetInitialApplications() {
     getPastEvents(_APPLICATION, (applications) => {
       applications.forEach((app) => {
         getAllApplicationData(app, (result) => {
-          if (result.owner != 0) dispatch(registerApplication(result))
+          if (result.owner !== "0x0000000000000000000000000000000000000000") dispatch(registerApplication(result))
         });
       })
     })
   }
 }
 
-function getInitialApplications(applications) {
-  return {
-    type: GET_INITIAL_APPLICATIONS,
-    applications
-  };
-}
+// function getInitialApplications(applications) {
+//   return {
+//     type: GET_INITIAL_APPLICATIONS,
+//     applications
+//   };
+// }
 
 export function registerApplication(application) {
   return {

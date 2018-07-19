@@ -1,22 +1,19 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Link } from 'react-router-dom';
 
-import { updateStatus, challengeResolved } from '../web3/web3';
+import { challengeResolved } from '../web3/web3';
 import { toMinuteAndSecond } from '../utils';
 
-import Challenge from './Challenge';
-import Vote from './Vote';
-import Reveal from './Reveal';
-import { ListGroup, ListGroupItem, Button, Alert } from 'reactstrap';
+import { ListGroup, ListGroupItem } from 'reactstrap';
+import Actions from './Actions';
 
 class Listing extends Component {
   state = {
-    successVisibility: false,
-    errorVisibility: false,
     appState: '',
+    challenge: null,
     timeTillCommit: -1,
     timeTillReveal: -1,
+    collapsed: true,
   }
 
   componentDidMount() {
@@ -25,42 +22,31 @@ class Listing extends Component {
       this.setState((prevState) => {
         let timeTillCommit = prevState.timeTillCommit - 1;
         let timeTillReveal = prevState.timeTillReveal - 1;
-        let appState = '';
-        if (prevState.appState === 'challenge') {
-          appState = prevState.appState;
-        } else {
-          if (timeTillCommit > 0) {
-            appState = 'vote';
-          } else if (timeTillReveal > 0) {
-            appState = 'reveal';
-          } else {
-            appState = 'updateStatus';
-          }
-        }
 
         return {
           timeTillCommit,
           timeTillReveal,
-          appState
+          // appState
         }
       })
     }, 1000);
     
-    this.updateState();
+    this.initState();
   }
 
   componentDidUpdate(prevProps) {
-    if (prevProps !== this.props) this.updateState();
+    if (prevProps !== this.props) this.initState();
   }
 
   componentWillUnmount() {
     clearInterval(this.interval);
   }
 
-  updateState = () => {
+  initState = () => {
     const id = this.props.match.params.id;
     const listing = this.props.applications[id];
     let appState = '';
+    let challenge = null;
 
     if (listing) {
       let timeTillCommit = 0;
@@ -68,9 +54,13 @@ class Listing extends Component {
 
       challengeResolved(listing.challengeID, (resolved) => {
         if (listing.challengeID === '0' || resolved) {
-          appState = 'challenge';
+          if (listing.challengeID === '0' && parseInt(listing.appEndDate, 10) < Date.now() / 1000 && !listing.whitelisted) {
+            appState = 'updateStatus';
+          } else {
+            appState = 'challenge';
+          }
         } else {
-          const challenge = this.props.challenges[listing.challengeID];
+          challenge = this.props.challenges[listing.challengeID];
           
           const currTime = Math.floor(Date.now() / 1000);
           timeTillCommit = parseInt(challenge.commitEndDate, 10) - currTime;
@@ -85,24 +75,36 @@ class Listing extends Component {
           }
         }
   
-        this.setState({ appState, timeTillCommit, timeTillReveal });
+        this.setState({ appState, timeTillCommit, timeTillReveal, challenge });
       });
       
     }
   }
 
-  handleUpdateStatus = () => {
-    updateStatus(this.props.match.params.id, (error, result) => {
-      if (error) {
-        console.log(error);
-        this.setState({errorVisibility: true});
+  updateAppState = () => {
+    this.setState((prevState) => {
+      let appState = '';
+      if (prevState.appState === 'challenge') {
+        appState = prevState.appState;
       } else {
-        console.log('Update status success.');
-        this.setState({ successVisibility: true });
-        // this.props.history.push('/')
-        // window.location.reload(true);
+        if (prevState.timeTillCommit > 0) {
+          appState = 'vote';
+        } else if (prevState.timeTillReveal > 0) {
+          appState = 'reveal';
+        } else {
+          appState = 'updateStatus';
+        }
       }
+      return { appState };
     });
+  }
+
+  toggleActions = () => {
+    // update the appState when clicked on the dropdown as well.
+    this.setState((prevState) => {
+      return {
+        collapsed: !prevState.collapsed
+    }})
   }
 
   render() {
@@ -110,18 +112,26 @@ class Listing extends Component {
     const listing = this.props.applications[id];
 
     if (this.state.appState !== '' && listing) {
-      const endDate = new Date(parseInt(listing.appEndDate) * 1000); // sec to millisec
+      const endDate = new Date(parseInt(listing.appEndDate, 10) * 1000); // sec to millisec
 
       return (
         <div>
-          <div className="title">
-            <h3>{listing.data.listingName}</h3>
+          <div className="title bg-dark text-light">
+            <img 
+              className="profile-picture border d-inline ml-4 mr-3"
+              src={listing.data.profilePicture !== '' ?
+                listing.data.profilePicture :
+                "https://t3.ftcdn.net/jpg/00/64/67/80/240_F_64678017_zUpiZFjj04cnLri7oADnyMH0XBYyQghG.jpg"
+              }
+              alt="profile picture"  
+            />
+            <h3 className="d-inline">{listing.data.listingName}</h3>
           </div>
-
+          
           <ListGroup>
             <ListGroupItem><b>Listing Hash:</b> {listing.listingHash}</ListGroupItem>
+            <ListGroupItem><b>Registry:</b> {listing.data.registry}</ListGroupItem>
             <ListGroupItem><b>Credential:</b> {listing.data.credential}</ListGroupItem>
-            <ListGroupItem><b>Deposit:</b> {listing.data.deposit}</ListGroupItem>
             <ListGroupItem><b>Application End Date:</b> {endDate.toLocaleString()}</ListGroupItem>
             <ListGroupItem><b>Metadata:</b> {listing.data.metadata}</ListGroupItem>
           </ListGroup>
@@ -133,61 +143,21 @@ class Listing extends Component {
           <h4>Time to commit vote: {toMinuteAndSecond(this.state.timeTillCommit)}</h4>}
           {this.state.timeTillCommit < 0 && this.state.timeTillReveal > 0 &&
           <h4>Time to reveal vote: {toMinuteAndSecond(this.state.timeTillReveal)}</h4>}
-          
-          
-          {this.state.appState === 'vote' &&
-          <Button color="info">
-            <Link
-              className="button-link"
-              to={`/applications/${id}/vote`}
-            >
-              Vote
-            </Link>
-          </Button>
-          }
 
-          {this.state.appState === 'challenge' && 
-          <Button color="info">
-            <Link
-              className="button-link"
-              to={`/applications/${id}/challenge`}
-            >
-              Challenge
-            </Link>
-          </Button>
-          // <Challenge />
-          }
-
-          {this.state.appState === 'reveal' &&
-          <Button color="info">
-            <Link
-              className="button-link"
-              to={`/applications/${id}/reveal`}
-            >
-              Reveal Vote
-            </Link>
-          </Button>
-          // <Reveal />
-          }
-
-          {this.state.appState === 'updateStatus' && <Button
+          {/* {this.state.appState === 'updateStatus' && <Button
             color="info"
             onClick={this.handleUpdateStatus}
           >Update Status</Button>
-          }
-          <br />
-
-          {/* Success/error notifications. */}
-          {this.state.successVisibility &&
-          <Alert color="success">
-            <strong><ion-icon name="checkmark-circle"></ion-icon> Update status successfully.</strong>
-          </Alert>
-          }
-          {this.state.errorVisibility &&
-          <Alert color="danger">
-            <strong><ion-icon name="close-circle"></ion-icon> Error:</strong> Could not perform the request.
-          </Alert>
-          }
+          } */}
+          <Actions
+            appState={this.state.appState}
+            updateAppState={this.updateAppState}
+            listingHash={id}
+            challenge={this.state.challenge}
+            timeTillCommit={this.state.timeTillCommit}
+            timeTillReveal={this.state.timeTillReveal}
+            history={this.props.history}
+          />
         </div>
       )
     }

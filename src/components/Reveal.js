@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import { connect } from 'react-redux';
 import { revealVote } from '../web3/web3';
 
 import { FormGroup, Label, Input, Button, Alert } from 'reactstrap';
@@ -44,13 +43,11 @@ class Reveal extends Component {
   }
 
   render() {
-    console.log(this.props);
-    return (
+    return this.props.appState !== 'reveal' ?
+      <div className="font-italic">
+        There are no active vote revealing periods for this application.
+      </div> : 
       <div>
-        <div className="title">
-          <h3>Reveal</h3>
-        </div>
-        
         <form onSubmit={this.handleSubmit}>
           <FormGroup>
             <Label>Upload vote result file:</Label>
@@ -74,13 +71,8 @@ class Reveal extends Component {
           <strong><ion-icon name="close-circle"></ion-icon> Error:</strong> Could not commit vote. Make sure the reveal period is still valid.
         </Alert>
         }
-      </div>
-    )
+      </div>;
   }
 }
 
-function mapStateToProps({ challenges }) {
-  return { challenges };
-}
-
-export default connect(mapStateToProps)(Reveal);
+export default Reveal;

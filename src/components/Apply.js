@@ -10,6 +10,7 @@ class Apply extends Component {
     dropdownOpen: false,
     listingName: '',
     registry: 'Math Experts',
+    profilePicture: '',
     credential: '',
     deposit: '',
     metadata: ''
@@ -27,6 +28,7 @@ class Apply extends Component {
     const listing = {
       listingName: this.state.listingName,
       registry: this.state.registry,
+      profilePicture: this.state.profilePicture,
       credential: this.state.credential,
       deposit: this.state.deposit,
       metadata: this.state.metadata
@@ -34,10 +36,16 @@ class Apply extends Component {
     apply(listing, (error, result) => {
       if (error) {
         console.log(error);
-        this.setState({errorVisibility: true,})
+        this.setState({
+          errorVisibility: true,
+          successVisibility: false
+        })
       } else {
         console.log(`Application ${listing.listingName} success.`);
-        this.setState({successVisibility: true,})
+        this.setState({
+          successVisibility: true,
+          errorVisibility: false
+        });
       }
     })
   }
@@ -82,6 +90,15 @@ class Apply extends Component {
                 <DropdownItem value="Chemistry Experts">Chemistry Experts</DropdownItem>
               </DropdownMenu>
             </Dropdown>
+          </FormGroup>
+
+          <FormGroup>
+            <Label>Profile Picture (URL): </Label>
+            <Input
+              type="text"
+              id="profilePicture"
+              onChange={this.handleChange}  
+            />
           </FormGroup>
           
           <FormGroup>

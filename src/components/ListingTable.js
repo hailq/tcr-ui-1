@@ -21,15 +21,15 @@ class ListingTable extends Component {
         <Collapse isOpen={this.props.currentTab === this.props.id}>
           <ListGroup>
             {
-            listings.length > 0
-              ? listings.map((application) => {
+            listings.length > 0 ?
+              listings.map((application) => {
                 const listingHash = application.listingHash;
                 return (
                   <ListGroupItem key={listingHash}>
-                    <Link to={`/applications/${listingHash}`} className="listing">{application.data.listingName} </Link>
+                    <Link to={`/applications/${listingHash}`} className="listing">{application.data.listingName}</Link>
                   </ListGroupItem>
-                )})
-              : <ListGroupItem>
+              )}) :
+              <ListGroupItem>
                 No listings in this category.
               </ListGroupItem>
             }

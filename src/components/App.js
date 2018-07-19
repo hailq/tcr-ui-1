@@ -8,9 +8,6 @@ import Apply from './Apply';
 import Listings from './Listings';
 import Remove from './Remove';
 import Listing from './Listing';
-import Challenge from './Challenge';
-import Vote from './Vote';
-import Reveal from './Reveal';
 
 import { Alert } from 'reactstrap';
 
@@ -39,6 +36,8 @@ class App extends Component {
     registryInstance.token((error, result) => {
       if (error) {
         console.log(error);
+        let addressIsValid = false;
+        callback(addressIsValid);
       } else {
         let addressIsValid = result === '0x' ? false : true;
         callback(addressIsValid);
@@ -60,11 +59,12 @@ class App extends Component {
           })
         }, 100);
 
-        // contract event listeners
+        // set up contract event listeners
         registryInstance[_APPLICATION]().watch((error, result) => {
           if (error) {
             console.log(error);
           } else {
+            console.log("Received an Application event.");
             getAllApplicationData(result, (application) => {
               this.props.dispatch(registerApplication(application));
             });
@@ -75,6 +75,7 @@ class App extends Component {
           if (error) {
             console.log(error);
           } else {
+            console.log("Received a Challenge event.");
             const challengedListing = this.props.applications[result.args.listingHash];
             if (challengedListing)
               this.props.dispatch(handleNewChallenge(result, challengedListing));
@@ -86,6 +87,7 @@ class App extends Component {
           if (error) {
             console.log(error);
           } else {
+            console.log("Received a ListingWithdrawn event.");
             this.props.dispatch(removeApplication(withdrawnListingHash));
           }
         })
@@ -112,9 +114,6 @@ class App extends Component {
                 <Route path='/account' component={Account} />
                 <Route path='/remove' component={Remove} />
                 <Route exact path='/applications/:id' component={Listing} />
-                <Route path='/applications/:id/challenge' component={Challenge} />
-                <Route path='/applications/:id/vote' component={Vote} />
-                <Route path='/applications/:id/reveal' component={Reveal} />
               </div> :
               <Alert color="danger">
                 <legend>

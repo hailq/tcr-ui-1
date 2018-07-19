@@ -61,7 +61,7 @@ class Remove extends Component {
             />
           </FormGroup>
 
-          <Button type="submit" color="info" disabled={this.state.name === ''}>Remove</Button>
+          <Button type="submit" color="info" disabled={this.state.name === ''}>Withdraw</Button>
         </form>
 
         <br />

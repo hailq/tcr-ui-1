@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import { connect } from 'react-redux';
 import { commitVote } from '../web3/web3';
 import config from '../config/config';
 
@@ -25,9 +24,8 @@ class Vote extends Component {
   handleSubmit = (e) => {
     e.preventDefault();
     
-    const listingHash = this.props.match.params.id;
-    const challengeID = parseInt(this.props.applications[listingHash].challengeID, 10);
-    const challenge = this.props.challenges[challengeID];
+    const listingHash = this.props.listingHash;
+    const challenge = this.props.challenge;
     const tokens = parseInt(this.state.tokens, 10) * config.scale;
 
     commitVote(listingHash, challenge, tokens, this.state.checked, (error, voteJSON) => {
@@ -43,7 +41,7 @@ class Vote extends Component {
         this.setState({
           voteJSON,
           successVisibility: true,
-          errorVisibility: true,
+          errorVisibility: false,
         });
       }
     })
@@ -64,15 +62,11 @@ class Vote extends Component {
   }
 
   render() {
-    const id = this.props.match.params.id;
-    let name = this.props.applications[id] ? this.props.applications[id].data.listingName : "";
-
-    return (
+    return this.props.appState !== 'vote' ?
+      <div className="font-italic">
+        There are no active voting periods for this application.
+      </div> : (
       <div>
-        <div className="title">
-          <h3>Vote for {name}</h3>
-        </div>
-
         <form>
           <Label><strong>Options</strong></Label>
           <FormGroup check>
@@ -103,9 +97,9 @@ class Vote extends Component {
 
         {/* Link to download vote json file */}
         {this.state.voteJSON &&
-        <a href="#" onClick={() => this.download('vote.json', JSON.stringify(this.state.voteJSON))}>
+        <Button color="link" onClick={() => this.download('vote.json', JSON.stringify(this.state.voteJSON))}>
           <ion-icon name="download"></ion-icon> Download vote JSON.
-        </a>
+        </Button>
         }
 
         <br />
@@ -125,8 +119,4 @@ class Vote extends Component {
   }
 }
 
-function mapStateToProps({ applications, challenges }) {
-  return { applications, challenges };
-}
-
-export default connect(mapStateToProps)(Vote);
+export default Vote;
