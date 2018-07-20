@@ -3,6 +3,8 @@ import { apply } from '../web3/web3';
 
 import { FormGroup, Input, Label, Button, Alert, Dropdown, DropdownToggle, DropdownMenu, DropdownItem } from 'reactstrap';
 
+import config from '../config/config.json'
+
 class Apply extends Component {
   state = {
     successVisibility: false,
@@ -30,10 +32,10 @@ class Apply extends Component {
       registry: this.state.registry,
       profilePicture: this.state.profilePicture,
       credential: this.state.credential,
-      deposit: this.state.deposit,
       metadata: this.state.metadata
     };
-    apply(listing, (error, result) => {
+    const deposit = parseInt(this.state.deposit, 10) * config.scale;
+    apply(listing, deposit, (error, result) => {
       if (error) {
         console.log(error);
         this.setState({
@@ -110,7 +112,7 @@ class Apply extends Component {
             />
           </FormGroup>
           <FormGroup>
-            <Label>Deposit: </Label>
+            <Label>Deposit (minimum {config.minDeposit / config.scale} tokens): </Label>
             <Input
               type="text"
               id="deposit"

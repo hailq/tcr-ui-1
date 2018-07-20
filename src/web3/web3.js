@@ -110,11 +110,11 @@ function requestVotingRights(amount, callback) {
   })
 }
 
-export function apply(listing, callback) {
+export function apply(listing, deposit, callback) {
   getAccount((acc) => {
-    approveTokensToRegistry(MIN_DEPOSIT, () => {
+    approveTokensToRegistry(deposit, () => {
       const hashedListingName = web3.sha3(listing.listingName);
-      registryInstance.apply(hashedListingName, MIN_DEPOSIT, JSON.stringify(listing), {
+      registryInstance.apply(hashedListingName, deposit, JSON.stringify(listing), {
         from: acc, gas: GAS_LIMIT, 
       }, callback);
     })

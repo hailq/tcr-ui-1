@@ -62,28 +62,28 @@ class Listings extends Component {
     return (
       <div>
         <div className="title">
-          <h3>All Listings</h3>
+          <h3>All Experts</h3>
         </div>
 
         <div>
           <ListingTable
             id="registry"
             listings={this.state.registry}
-            name="Registry"
+            name="Current Experts"
             handleTabChange={this.handleTabChange}
             currentTab={this.state.currentTab}
           />
           <ListingTable
             id="applications"
             listings={this.state.applications}
-            name="Applications"
+            name="Pending Applications"
             handleTabChange={this.handleTabChange}
             currentTab={this.state.currentTab}
           />
           <ListingTable
             id="voting"
             listings={this.state.voting}
-            name="Voting"
+            name="Challenged Applications"
             handleTabChange={this.handleTabChange}
             currentTab={this.state.currentTab}
           />

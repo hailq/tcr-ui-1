@@ -44,7 +44,7 @@ export default function NavBar() {
         <ul className="nav">
           <li className="nav-item">
             <NavLink to='/' className="nav-link">
-            <ion-icon name="list-box"></ion-icon> Listings
+            <ion-icon name="list-box"></ion-icon> Experts
             </NavLink>
           </li>
           <li className="nav-item">
@@ -59,7 +59,7 @@ export default function NavBar() {
           </li>
           <li className="nav-item">
             <NavLink to='/remove' className="nav-link">
-            <ion-icon name="trash"></ion-icon> Withdraw an Application
+            <ion-icon name="trash"></ion-icon> Withdraw a Listing
             </NavLink>
           </li>
         </ul>
