@@ -140,9 +140,9 @@ class Listing extends Component {
 
           {/* Countdown clock */}
           {this.state.timeTillCommit > 0 &&
-          <h4>Time to commit vote: {toMinuteAndSecond(this.state.timeTillCommit)}</h4>}
+          <h4>Time left to commit vote: {toMinuteAndSecond(this.state.timeTillCommit)}</h4>}
           {this.state.timeTillCommit < 0 && this.state.timeTillReveal > 0 &&
-          <h4>Time to reveal vote: {toMinuteAndSecond(this.state.timeTillReveal)}</h4>}
+          <h4>Time left to reveal vote: {toMinuteAndSecond(this.state.timeTillReveal)}</h4>}
 
           {/* {this.state.appState === 'updateStatus' && <Button
             color="info"

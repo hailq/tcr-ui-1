@@ -12,7 +12,6 @@ export let web3;
 if (typeof window.web3 !== 'undefined') {
   web3 = new Web3(window.web3.currentProvider);
 } else {
-  console.log('here');
   web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:7545"));
 }
 
@@ -285,19 +284,4 @@ export function getAllowance(callback) {
       })
     })
   })
-}
-
-/* 
-Event listeners
-*/
-
-export const setRegistryEventListener = () => {
-  let listener = web3.eth.filter({REGISTRY_ADDRESS});
-  listener.watch((error, result) => {
-    if (error) {
-      console.log(error);
-    } else {
-      console.log(result);
-    }
-  });
 }

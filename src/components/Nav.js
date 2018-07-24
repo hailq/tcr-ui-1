@@ -2,8 +2,6 @@ import React from 'react';
 import { NavLink } from 'react-router-dom';
 import config from '../config/config';
 
-import { Nav, NavItem } from 'reactstrap';
-
 export default function NavBar() {
   return (
     <div className="header bg-dark">

@@ -49,17 +49,6 @@ class App extends Component {
         callback(addressIsValid);
       }
     })
-    // registryInstance.token((error, result) => {
-    //   if (error) {
-    //     console.log(error);
-    //     let addressIsValid = false;
-    //     callback(addressIsValid);
-    //   } else {
-    //     console.log(result);
-    //     let addressIsValid = result === '0x' ? false : true;
-    //     callback(addressIsValid);
-    //   }
-    // })
   }
 
   updateState = () => {

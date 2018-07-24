@@ -31,7 +31,9 @@ class Listings extends Component {
 
     allApps.forEach((app) => {
       if (app.challengeID === "0") {
-        if (parseInt(app.appEndDate, 10) < Date.now() / 1000) {
+        if (app.whitelisted) {
+          registry.push(app);
+        } else if (parseInt(app.appEndDate, 10) < Date.now() / 1000) {
           voting.push(app); // app wasn't challenged during the app period so just need to update status.
         } else {
           applications.push(app);
