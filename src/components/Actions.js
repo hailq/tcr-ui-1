@@ -40,10 +40,10 @@ class Actions extends Component {
         </Dropdown>
         <br />
 
-        {this.state.currentAction === 'Challenge' && 
-          <Challenge 
+        {this.state.currentAction === 'Challenge' &&
+          <Challenge
             listingHash={this.props.listingHash}
-            appState={this.props.appState} 
+            appState={this.props.appState}
           />
         }
 
@@ -55,15 +55,16 @@ class Actions extends Component {
             appState={this.props.appState}
           />
         }
-          
-        {this.state.currentAction === 'Reveal Vote' && 
-          <Reveal 
+
+        {this.state.currentAction === 'Reveal Vote' &&
+          <Reveal
+            challenge={this.props.challenge}
             timeTillReveal={this.props.timeTillReveal}
             appState={this.props.appState}
           />
         }
 
-        {this.state.currentAction === 'Update Status' && 
+        {this.state.currentAction === 'Update Status' &&
           <UpdateStatus
             listingHash={this.props.listingHash}
             appState={this.props.appState}

@@ -6,7 +6,8 @@ import tokenContract from '../contracts/EIP20.json'
 import votingContract from '../contracts/PLCRVoting.json';
 
 import { createSalt } from '../utils';
-import { soliditySha3 } from 'web3-utils';
+import { soliditySha3, hexToAscii } from 'web3-utils';
+import EthCrypto from 'eth-crypto';
 
 export let web3;
 if (typeof window.web3 !== 'undefined') {
@@ -61,7 +62,7 @@ function approveTokensToRegistry(amount, callback) {
     const address = REGISTRY_ADDRESS;
     getTokenInstance((tokenInstance) => {
       tokenInstance.approve(address, amount,
-        {from: acc},
+        { from: acc },
         (error, result) => {
           if (error) {
             console.log(error);
@@ -79,7 +80,7 @@ function approveTokensToVoting(amount, callback) {
     registryInstance.voting((error, address) => {
       getTokenInstance((tokenInstance) => {
         tokenInstance.approve(address, amount,
-          {from: acc},
+          { from: acc },
           (error, result) => {
             if (error) {
               console.log(error);
@@ -96,8 +97,8 @@ function approveTokensToVoting(amount, callback) {
 function requestVotingRights(amount, callback) {
   getAccount((acc) => {
     getVotingInstance((votingInstance) => {
-      votingInstance.requestVotingRights(amount, 
-        {from: acc, gas: GAS_LIMIT},
+      votingInstance.requestVotingRights(amount,
+        { from: acc, gas: GAS_LIMIT },
         (error, result) => {
           if (error) {
             console.log(error);
@@ -111,71 +112,171 @@ function requestVotingRights(amount, callback) {
 
 export function apply(listing, deposit, callback) {
   getAccount((acc) => {
-    approveTokensToRegistry(deposit, () => {
-      const hashedListingName = web3.sha3(listing.listingName);
-      registryInstance.apply(hashedListingName, deposit, JSON.stringify(listing), {
-        from: acc, gas: GAS_LIMIT, 
-      }, callback);
-    })
+    // approveTokensToRegistry(deposit, () => {
+    //   const hashedListingName = web3.sha3(listing.listingName);
+    //   registryInstance.apply(hashedListingName, deposit, JSON.stringify(listing), {
+    //     from: acc, gas: GAS_LIMIT,
+    //   }, callback);
+    // })
+
+    const hashedListingName = web3.sha3(listing.listingName);
+    registryInstance.apply(hashedListingName, deposit, JSON.stringify(listing), {
+      from: acc, gas: GAS_LIMIT,
+    }, callback);
   })
 }
 
 export function challenge(listingHash, data, callback) {
   getAccount((acc) => {
-    approveTokensToRegistry(MIN_DEPOSIT, () => {
-      registryInstance.challenge(listingHash, data, 
-        {from: acc, gas: GAS_LIMIT},
-        callback
+    // approveTokensToRegistry(MIN_DEPOSIT, () => {
+    //   registryInstance.challenge(listingHash, data,
+    //     { from: acc, gas: GAS_LIMIT },
+    //     callback
+    //   )
+    // })
+
+    registryInstance.challenge(listingHash, data,
+      { from: acc, gas: GAS_LIMIT },
+      callback
+    )
+  })
+}
+
+export function commitVote(listingHash, challenge, tokens, vote, privateKey, callback) {
+  getAccount((acc) => {
+    getVotingInstance(async (votingInstance) => {
+      // approveTokensToVoting(tokens, async () => {
+      //   const salt = createSalt();
+      //   const secretHash = soliditySha3({ type: 'uint', value: vote }, { type: 'uint', value: salt });
+
+      //   //TODO: Get account public key
+      //   const publicKey = EthCrypto.publicKeyByPrivateKey(privateKey)
+
+      //   //TODO: Encrypt voting info by public key
+      //   const voteObject = {
+      //     vote: vote,
+      //     salt: salt
+      //   }
+      //   const secretMessage = JSON.stringify(voteObject)
+      //   const encrypted = await EthCrypto.encryptWithPublicKey(
+      //     publicKey,
+      //     secretMessage
+      //   )
+      //   const encryptedString = EthCrypto.cipher.stringify(encrypted)
+
+      //   //TODO: Include encrypted voting info to contract call
+
+      //   votingInstance.getInsertPointForNumTokens(acc, tokens, challenge.challengeID, (error, prevPollID) => {
+      //     votingInstance.commitVote(challenge.challengeID, secretHash, tokens, prevPollID, encryptedString,
+      //       { from: acc, gas: GAS_LIMIT },
+      //       (error, result) => {
+      //         callback(error, {
+      //           voteOption: vote,
+      //           numTokens: tokens,
+      //           commitEnd: challenge.commitEndDate.toLocaleString(),
+      //           revealEnd: challenge.revealEndDate.toLocaleString(),
+      //           listingID: listingHash,
+      //           salt: salt,
+      //           pollID: challenge.challengeID.toString(),
+      //           secretHash: secretHash,
+      //           account: acc
+      //         });
+      //       }
+      //     )
+      //   })
+      // })
+
+      const salt = createSalt();
+      const secretHash = soliditySha3({ type: 'uint', value: vote }, { type: 'uint', value: salt });
+
+      //TODO: Get account public key
+      const publicKey = EthCrypto.publicKeyByPrivateKey(privateKey)
+
+      //TODO: Encrypt voting info by public key
+      const voteObject = {
+        vote: vote,
+        salt: salt
+      }
+      const secretMessage = JSON.stringify(voteObject)
+      const encrypted = await EthCrypto.encryptWithPublicKey(
+        publicKey,
+        secretMessage
       )
+      const encryptedString = EthCrypto.cipher.stringify(encrypted)
+
+      //TODO: Include encrypted voting info to contract call
+
+      votingInstance.getInsertPointForNumTokens(acc, tokens, challenge.challengeID, (error, prevPollID) => {
+        votingInstance.commitVote(challenge.challengeID, secretHash, tokens, prevPollID, encryptedString,
+          { from: acc, gas: GAS_LIMIT },
+          (error, result) => {
+            callback(error, {
+              voteOption: vote,
+              numTokens: tokens,
+              commitEnd: challenge.commitEndDate.toLocaleString(),
+              revealEnd: challenge.revealEndDate.toLocaleString(),
+              listingID: listingHash,
+              salt: salt,
+              pollID: challenge.challengeID.toString(),
+              secretHash: secretHash,
+              account: acc
+            });
+          }
+        )
+      })
+
     })
   })
 }
 
-export function commitVote(listingHash, challenge, tokens, vote, callback) {
+// export function revealVote(voteJSON, callback) {
+//   getAccount((acc) => {
+//     getVotingInstance((votingInstance) => {
+//       votingInstance.revealVote(voteJSON.pollID, voteJSON.voteOption, voteJSON.salt,
+//         { from: acc, gas: GAS_LIMIT },
+//         callback
+//       );
+//     })
+//   })
+// }
+
+export function revealVote(pollId, privateKey, callback) {
   getAccount((acc) => {
     getVotingInstance((votingInstance) => {
-      approveTokensToVoting(tokens, () => {
-        const salt = createSalt();
-        const secretHash = soliditySha3({type: 'uint', value: vote}, {type: 'uint', value: salt});
-    
-        votingInstance.getInsertPointForNumTokens(acc, tokens, challenge.challengeID, (error, prevPollID) => {
-          votingInstance.commitVote(challenge.challengeID, secretHash, tokens, prevPollID,
-            {from: acc, gas: GAS_LIMIT},
-            (error, result) => {
-              callback(error, {
-                voteOption: vote,
-                numTokens: tokens,
-                commitEnd: challenge.commitEndDate.toLocaleString(),
-                revealEnd: challenge.revealEndDate.toLocaleString(),
-                listingID: listingHash,
-                salt: salt,
-                pollID: challenge.challengeID.toString(),
-                secretHash: secretHash,
-                account: acc
-              });
-            }
-          )
+
+      votingInstance.getRevealInfo.call(pollId, (err, result) => {
+        const message = hexToAscii(result.toString())
+
+        // Decrypt message
+        const encryptedObject = EthCrypto.cipher.parse(message)
+        EthCrypto.decryptWithPrivateKey(
+          privateKey,
+          encryptedObject
+        ).then((decrypted) => {
+          console.log(decrypted);
+
+          const decryptedPayload = JSON.parse(decrypted)
+
+          votingInstance.revealVote(pollId, decryptedPayload.vote, decryptedPayload.salt,
+            { from: acc, gas: GAS_LIMIT },
+            callback
+          );
         })
       })
     })
   })
 }
 
-export function revealVote(voteJSON, callback) {
-  getAccount((acc) => {
-    getVotingInstance((votingInstance) => {
-      votingInstance.revealVote(voteJSON.pollID, voteJSON.voteOption, voteJSON.salt,
-        {from: acc, gas: GAS_LIMIT},
-        callback
-      );
-    })
+export function getRevealInfo(pollId, callback) {
+  getVotingInstance((votingInstance) => {
+    votingInstance.getRevealInfo.call(pollId, callback)
   })
 }
 
 export function updateStatus(listingHash, callback) {
   getAccount((acc) => {
     registryInstance.updateStatus(listingHash,
-      {from: acc, gas: GAS_LIMIT},
+      { from: acc, gas: GAS_LIMIT },
       callback
     );
   })
@@ -184,14 +285,14 @@ export function updateStatus(listingHash, callback) {
 export function exit(listingHash, callback) {
   getAccount((acc) => {
     registryInstance.exit(listingHash,
-      {from: acc, gas: GAS_LIMIT},
+      { from: acc, gas: GAS_LIMIT },
       callback
     );
   })
 }
 
 export function getPastEvents(type, callback) {
-  registryInstance[type]({}, {fromBlock: 0})
+  registryInstance[type]({}, { fromBlock: 0 })
     .get((error, result) => {
       if (error) {
         console.log(error);
