@@ -7,7 +7,7 @@ import votingContract from '../contracts/PLCRVoting.json';
 
 import { createSalt } from '../utils';
 import { soliditySha3, hexToAscii } from 'web3-utils';
-import EthCrypto from 'eth-crypto';
+import EthCrypto from '../eth-crypto';
 
 export let web3;
 if (typeof window.web3 !== 'undefined') {
