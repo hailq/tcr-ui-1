@@ -1,7 +1,7 @@
 import Web3 from 'web3';
 
 import config from '../config/config.json';
-import registryContract from '../contracts/Registry.json'
+import registryContract from '../contracts/SingleRegistry.json'
 import tokenContract from '../contracts/EIP20.json'
 import votingContract from '../contracts/PLCRVoting.json';
 
@@ -120,7 +120,8 @@ export function apply(listing, deposit, callback) {
     // })
 
     const hashedListingName = web3.sha3(listing.listingName);
-    registryInstance.apply(hashedListingName, deposit, JSON.stringify(listing), {
+    const hashedSubject = web3.sha3(listing.subject);
+    registryInstance.apply(hashedListingName, hashedSubject, deposit, JSON.stringify(listing), {
       from: acc, gas: GAS_LIMIT,
     }, callback);
   })
@@ -136,6 +137,23 @@ export function challenge(listingHash, data, callback) {
     // })
 
     registryInstance.challenge(listingHash, data,
+      { from: acc, gas: GAS_LIMIT },
+      callback
+    )
+  })
+}
+
+export function challengeSubject(listingHash, subject, data, callback) {
+  getAccount((acc) => {
+    // approveTokensToRegistry(MIN_DEPOSIT, () => {
+    //   registryInstance.challenge(listingHash, data,
+    //     { from: acc, gas: GAS_LIMIT },
+    //     callback
+    //   )
+    // })
+
+    const hashedSubject = web3.sha3(subject);
+    registryInstance.challengeSubject(listingHash, hashedSubject, data,
       { from: acc, gas: GAS_LIMIT },
       callback
     )
@@ -341,6 +359,13 @@ export function challengeResolved(id, callback) {
     } else {
       callback(challenge[2]);
     }
+  });
+}
+
+export function checkSubjectStatus(listingHash, subject, callback) {
+  const subjectHash = web3.sha3(subject);
+  registryInstance.isSubjectWhitelisted.call(listingHash, subjectHash, (err, result) => {
+    callback(result);
   });
 }
 

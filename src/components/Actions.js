@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import Challenge from './Challenge';
+import ChallengeSubject from './ChallengeSubject';
 import Vote from './Vote';
 import Reveal from './Reveal';
 import UpdateStatus from './UpdateStatus';
@@ -33,6 +34,7 @@ class Actions extends Component {
           </DropdownToggle>
           <DropdownMenu onClick={this.getSelectedDropdownItem}>
             <DropdownItem value="Challenge">Challenge</DropdownItem>
+            <DropdownItem value="Challenge Subject">Challenge Subject</DropdownItem>
             <DropdownItem value="Vote">Vote</DropdownItem>
             <DropdownItem value="Reveal Vote">Reveal Vote</DropdownItem>
             <DropdownItem value="Update Status">Update Status</DropdownItem>
@@ -42,6 +44,13 @@ class Actions extends Component {
 
         {this.state.currentAction === 'Challenge' &&
           <Challenge
+            listingHash={this.props.listingHash}
+            appState={this.props.appState}
+          />
+        }
+
+        {this.state.currentAction === 'Challenge Subject' &&
+          <ChallengeSubject
             listingHash={this.props.listingHash}
             appState={this.props.appState}
           />

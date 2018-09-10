@@ -18,8 +18,8 @@ class UpdateStatus extends Component {
         });
       } else {
         console.log('Update status success.');
-        this.setState({ 
-          successVisibility: true, 
+        this.setState({
+          successVisibility: true,
           errorVisibility: false,
         });
         window.location.reload(true);
@@ -29,28 +29,47 @@ class UpdateStatus extends Component {
   }
 
   render() {
-    return this.props.appState !== 'updateStatus' ?
-      <div className="font-italic">
-        Cannot update the listing's status right now.
-      </div> :
-      <div>
-        <div>
-          <Button color="link" onClick={this.handleUpdateStatus}>Update status of this application</Button>
-        </div>
+    // return this.props.appState !== 'updateStatus' ?
+    //   <div className="font-italic">
+    //     Cannot update the listing's status right now.
+    //   </div> :
+    //   <div>
+    //     <div>
+    //       <Button color="link" onClick={this.handleUpdateStatus}>Update status of this application</Button>
+    //     </div>
 
-        <br />
-        {/* Success/error notifications. */}
-        {this.state.successVisibility &&
+    //     <br />
+    //     {/* Success/error notifications. */}
+    //     {this.state.successVisibility &&
+    //     <Alert color="success">
+    //       <strong><ion-icon name="checkmark-circle"></ion-icon> Update status successfully.</strong>
+    //     </Alert>
+    //     }
+    //     {this.state.errorVisibility &&
+    //     <Alert color="danger">
+    //       <strong><ion-icon name="close-circle"></ion-icon> Error:</strong> Could not perform the request.
+    //     </Alert>
+    //     }
+    //   </div>
+
+    return <div>
+      <div>
+        <Button color="link" onClick={this.handleUpdateStatus}>Update status of this application</Button>
+      </div>
+
+      <br />
+      {/* Success/error notifications. */}
+      {this.state.successVisibility &&
         <Alert color="success">
           <strong><ion-icon name="checkmark-circle"></ion-icon> Update status successfully.</strong>
         </Alert>
-        }
-        {this.state.errorVisibility &&
+      }
+      {this.state.errorVisibility &&
         <Alert color="danger">
           <strong><ion-icon name="close-circle"></ion-icon> Error:</strong> Could not perform the request.
         </Alert>
-        }
-      </div>
+      }
+    </div>
   }
 }
 

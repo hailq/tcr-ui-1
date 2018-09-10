@@ -29,8 +29,17 @@ class Listings extends Component {
     const allApps = this.props.applications;
     const allChallenges = this.props.challenges;
 
+    console.log(allApps)
+    console.log(allChallenges)
+
     allApps.forEach((app) => {
       if (app.challengeID === "0") {
+        // New subject apply
+        if (app.whitelisted && (parseInt(app.appEndDate, 10) >= Date.now() / 1000)) {
+          applications.push(app);
+          return;
+        }
+
         if (app.whitelisted) {
           registry.push(app);
         } else if (parseInt(app.appEndDate, 10) < Date.now() / 1000) {

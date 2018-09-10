@@ -10,7 +10,9 @@ class Apply extends Component {
     successVisibility: false,
     errorVisibility: false,
     dropdownOpen: false,
+    dropdownSubjectOpen: false,
     listingName: '',
+    subject: 'Algebra',
     registry: 'Math Experts',
     profilePicture: '',
     credential: '',
@@ -29,6 +31,7 @@ class Apply extends Component {
     e.preventDefault();
     const listing = {
       listingName: this.state.listingName,
+      subject: this.state.subject,
       registry: this.state.registry,
       profilePicture: this.state.profilePicture,
       credential: this.state.credential,
@@ -52,15 +55,18 @@ class Apply extends Component {
     })
   }
 
-  toggle = () => {
+  toggle = (name) => {
     this.setState(prevState => ({
-      dropdownOpen: !prevState.dropdownOpen
+      [name]: !prevState[name]
     }));
   }
 
-  getSelectedDropdownItem = (e) => {
+  getSelectedDropdownItem = (e, name) => {
+    const target = e.target;
+    const value = target.value;
+
     this.setState({
-      registry: e.target.value
+      [name]: value
     })
   }
 
@@ -81,12 +87,24 @@ class Apply extends Component {
             />
           </FormGroup>
           <FormGroup>
+            <Label>Subject: </Label>
+            <Dropdown isOpen={this.state.dropdownSubjectOpen} toggle={() => { this.toggle("dropdownSubjectOpen") }} >
+              <DropdownToggle color="light" caret>
+                {this.state.subject}
+              </DropdownToggle>
+              <DropdownMenu onClick={(e) => { this.getSelectedDropdownItem(e, "subject") }}>
+                <DropdownItem value="Algebra">Algebra</DropdownItem>
+                <DropdownItem value="Chemistry">Chemistry</DropdownItem>
+              </DropdownMenu>
+            </Dropdown>
+          </FormGroup>
+          <FormGroup>
             <Label>Registry: </Label>
-            <Dropdown isOpen={this.state.dropdownOpen} toggle={this.toggle}>
+            <Dropdown isOpen={this.state.dropdownOpen} toggle={() => { this.toggle("dropdownOpen") }}>
               <DropdownToggle color="light" caret>
                 {this.state.registry}
               </DropdownToggle>
-              <DropdownMenu onClick={this.getSelectedDropdownItem}>
+              <DropdownMenu onClick={(e) => { this.getSelectedDropdownItem(e, "registry") }}>
                 <DropdownItem value="Math Experts">Math Experts</DropdownItem>
                 <DropdownItem value="Physics Experts">Physics Experts</DropdownItem>
                 <DropdownItem value="Chemistry Experts">Chemistry Experts</DropdownItem>
@@ -99,16 +117,16 @@ class Apply extends Component {
             <Input
               type="text"
               id="profilePicture"
-              onChange={this.handleChange}  
+              onChange={this.handleChange}
             />
           </FormGroup>
-          
+
           <FormGroup>
             <Label>Credential: </Label>
             <Input
               type="text"
               id="credential"
-              onChange={this.handleChange}  
+              onChange={this.handleChange}
             />
           </FormGroup>
           <FormGroup>
@@ -116,7 +134,7 @@ class Apply extends Component {
             <Input
               type="text"
               id="deposit"
-              onChange={this.handleChange}  
+              onChange={this.handleChange}
             />
           </FormGroup>
           <FormGroup>
@@ -124,7 +142,7 @@ class Apply extends Component {
             <Input
               type="text"
               id="metadata"
-              onChange={this.handleChange}  
+              onChange={this.handleChange}
             />
           </FormGroup>
 
@@ -132,13 +150,13 @@ class Apply extends Component {
         </form>
         <br />
         {this.state.successVisibility &&
-        <Alert color="success">
-          <strong><ion-icon name="checkmark-circle"></ion-icon> Application created successfully.</strong>
-        </Alert>
+          <Alert color="success">
+            <strong><ion-icon name="checkmark-circle"></ion-icon> Application created successfully.</strong>
+          </Alert>
         }
         {this.state.errorVisibility &&
-        <Alert color="danger">
-          <strong><ion-icon name="close-circle"></ion-icon> Error:</strong> Could not create application. Make sure your account has sufficient ballance and the listing name is not in the registry.
+          <Alert color="danger">
+            <strong><ion-icon name="close-circle"></ion-icon> Error:</strong> Could not create application. Make sure your account has sufficient ballance and the listing name is not in the registry.
         </Alert>
         }
       </div>
